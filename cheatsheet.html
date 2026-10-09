@@ -376,47 +376,59 @@ end</pre></div>
 <text class="s" x="116" y="31">JTA = {PC+4[31:28], addr26, 00}</text><text class="s" x="116" y="38">jal: Jump=1, RegWrite=1,</text><text class="s" x="116" y="44">RegDst=10, MemtoReg=10</text></svg>
 <p><b>Main decoder row (op 000011):</b> RegWrite=1, RegDst=10, ALUSrc=X, Branch=0, MemWrite=0, MemtoReg=10, ALUOp=XX, Jump=1. <b>New control:</b> RegDst and MemtoReg widened to 2 bits (equivalently one new signal <b>Link/JAL</b> driving two extra 2:1 muxes: WriteReg = JAL ? 31 : old; Result = JAL ? PC+4 : old). Existing instrs use 00/01 → unaffected. Return later with jr $ra.</p></div>
 
-<div class="q"><b>#36</b> 16-bit multi-cycle single-purpose processor: Y<sub>i</sub>=aX<sub>i</sub><sup>3</sup>+bX<sub>i</sub><sup>2</sup>+cX<sub>i</sub>+d, a=b=c=d=2, 0≤i&lt;10 <span class="tg">22-3, 25-2</span>
-<p>Horner: <b>Y = ((a·X + b)·X + c)·X + d</b> → 3 multiplies + 3 adds using 1 multiplier + 1 adder over several cycles. 16-bit data, byte-addressable ⇒ pointers step by <b>2</b>. X<sub>0..9</sub> at addresses 0,2,…,18; Y<sub>0..9</sub> at 20,…,38.</p>
-<svg viewBox="0 0 186 108"><g transform="translate(0,5)">
-<rect class="n" x="2" y="2" width="16" height="9"/><text class="s" x="3" y="8">PX(+2)</text><rect class="n" x="24" y="2" width="16" height="9"/><text class="s" x="25" y="8">PY(+2)</text>
-<path class="n" d="M8,18 L36,18 L31,25 L13,25Z"/><text class="s" x="17" y="23">M4</text><text class="s" x="37" y="24">AdrSel</text>
-<path class="w" d="M10,11 V17" marker-end="url(#a)"/><path class="w" d="M32,11 V17" marker-end="url(#a)"/><path class="w" d="M22,25 V39" marker-end="url(#a)"/>
-<rect class="n" x="2" y="40" width="40" height="28"/><text x="6" y="52">Memory</text><text class="s" x="6" y="58">16-bit words</text><text class="s" x="18" y="45">A</text><text class="s" x="35" y="56">RD</text><text class="s" x="26" y="66">WD</text><text class="s" x="27" y="77">MemRd/Wr</text>
-<rect class="n" x="56" y="5" width="18" height="9"/><text class="s" x="58" y="11">Ra=2</text>
-<rect class="n" x="56" y="21" width="18" height="9"/><text class="s" x="60" y="27">X</text><text class="s" x="57" y="34">LdX</text>
-<rect class="n" x="56" y="50" width="18" height="8"/><text class="s" x="58" y="56">Rb=2</text><rect class="n" x="56" y="60" width="18" height="8"/><text class="s" x="58" y="66">Rc=2</text><rect class="n" x="56" y="70" width="18" height="8"/><text class="s" x="58" y="76">Rd=2</text>
-<path class="w" d="M42,54 H49 V25.5 H55" marker-end="url(#a)"/>
-<path class="n" d="M84,4 L92,7 L92,19 L84,22Z"/><text class="s" x="85" y="11">0</text><text class="s" x="85" y="19">1</text><text class="s" x="83" y="2">M1 MulSel</text>
-<path class="w" d="M74,9.5 H83" marker-end="url(#a)"/>
-<rect class="n" x="100" y="6" width="20" height="24"/><text x="107" y="21">×</text><text class="s" x="101" y="28">MUL</text>
-<path class="w" d="M92,13 H99" marker-end="url(#a)"/><path class="w" d="M74,25.5 H99" marker-end="url(#a)"/>
-<path class="n" d="M84,50 L92,53 L92,75 L84,78Z"/><text class="s" x="85" y="56">00</text><text class="s" x="85" y="66">01</text><text class="s" x="85" y="76">10</text><text class="s" x="78" y="48">M2 KSel[1:0]</text>
-<path class="w" d="M74,54 H83 M74,64 H83 M74,74 H83"/>
-<rect class="n" x="100" y="52" width="20" height="24"/><text x="107" y="67">+</text><text class="s" x="101" y="74">ADD</text>
-<path class="w" d="M92,68 H99" marker-end="url(#a)"/>
-<path class="n" d="M130,14 L138,17 L138,63 L130,66Z"/><text class="s" x="131" y="21">0</text><text class="s" x="131" y="62">1</text><text class="s" x="126" y="12">M3 TSel</text>
-<path class="w" d="M120,18 H129" marker-end="url(#a)"/><path class="w" d="M120,60 H129" marker-end="url(#a)"/>
-<rect class="n" x="146" y="35" width="16" height="10"/><text x="152" y="42">T</text><text class="s" x="147" y="51">LdT</text>
-<path class="w" d="M138,40 H145" marker-end="url(#a)"/>
-<path class="h" d="M162,40 H172 V-3 H79 V18 H83" marker-end="url(#a)"/><path class="h" d="M172,40 V84 H96 V58 H99" marker-end="url(#a)"/><path class="h" d="M96,84 H24 V69" marker-end="url(#a)"/>
-<text class="s" x="140" y="3">T feedback</text><text class="s" x="40" y="89">T → Memory WD (store Y)</text>
-<rect class="n" x="104" y="93" width="20" height="9"/><text class="s" x="106" y="99">i (cnt)</text><rect class="n" x="132" y="93" width="20" height="9"/><text class="s" x="134" y="99">i==10?</text>
-<path class="w" d="M124,97.5 H131" marker-end="url(#a)"/><path class="w" d="M152,97.5 H162" marker-end="url(#a)"/><text class="s" x="163" y="99">Eq10→Stop</text><text class="s" x="104" y="91">IncI, Init(clr)</text>
-<text class="s" x="2" y="96">Init: Ra..Rd←2, PX←0,</text><text class="s" x="2" y="101">PY←20, i←0</text></g></svg>
-<p><b>Control signals (13):</b> Init, LdX, LdT, MulSel, KSel[1:0] (2), TSel, AdrSel, MemRd, MemWr, IncX, IncY, IncI. Status in: Eq10; output: Stop. Storage: Ra, Rb, Rc, Rd, X, T (16 b), PX, PY (16 b), i (4 b).</p>
+<div class="q"><b>#36</b> 16-bit multi-cycle single-purpose processor: Y<sub>i</sub>=aX<sub>i</sub><sup>3</sup>+bX<sub>i</sub><sup>2</sup>+cX<sub>i</sub>+d, a=b=c=d=2, 0≤i&lt;10 <span class="tg">22-3, 25-2 (graded answer layout, prof's MinMax style)</span>
+<p>Compute terms in parallel: X² = X·X, X³ = X²·X, Part1 = a·X³, Part2 = b·X², Part3 = c·X, Y = Part1+Part2+Part3+d. 16-bit data, byte-addressable ⇒ PC and Y pointers step by <b>2</b> (X<sub>0..9</sub> at 0,2,…,18; Y at Y<sub>base</sub>=20,…,38). <b>Limit</b> counter (10 → −1 each Y, <b>Stop</b> at 0) like MinMax.</p>
+<svg viewBox="0 0 186 100">
+<rect class="n" x="2" y="0.5" width="20" height="6"/><text class="s" x="5" y="5">1 | 0</text><text class="s" x="24" y="5">loadY (1: Y<tspan baseline-shift="sub" font-size="3.4">base</tspan>, 0: Y+2)</text>
+<rect class="n" x="2" y="9" width="20" height="7"/><text x="9" y="14.5">Y</text><text class="s" x="37" y="13.5">Y en</text>
+<path class="w" d="M12,6.5 V8.5" marker-end="url(#a)"/>
+<rect class="n" x="2" y="22" width="20" height="6"/><text class="s" x="5" y="26.6">1 | 0</text><text class="s" x="2" y="20.6">loadPC (1: 0)</text>
+<rect class="n" x="2" y="32" width="20" height="9"/><text x="8" y="38.6">PC</text><text class="s" x="2" y="46">PC update</text>
+<path class="w" d="M12,28 V31.5" marker-end="url(#a)"/>
+<rect class="n" x="2" y="50" width="12" height="7"/><text class="s" x="4" y="55">+2</text>
+<path class="w" d="M22,36.5 H25 V53.5 H14.5" marker-end="url(#a)"/><path class="w" d="M2,53.5 H0.6 V25 H1.5" marker-end="url(#a)"/>
+<rect class="nw" x="30" y="24" width="10" height="16"/><text class="s" x="31" y="30">Adr</text><text class="s" x="31" y="35">mux</text><text class="s" x="27" y="45">AdrSel</text>
+<path class="w" d="M22,12.5 H34 V23.5" marker-end="url(#a)"/><path class="w" d="M25,36.5 H29.5" marker-end="url(#a)"/>
+<rect class="n" x="46" y="22" width="26" height="30"/><text x="50" y="35">Memory</text><text class="s" x="47" y="28">Address</text><text class="s" x="47" y="49">WriteData</text><text class="s" x="64" y="42">RD</text><text class="s" x="61" y="60">memRead, memWrite</text>
+<path class="w" d="M40,32 H45.5" marker-end="url(#a)"/>
+<rect class="n" x="78" y="33" width="12" height="14"/><text class="s" x="79" y="39">MDR</text><text class="s" x="80" y="44">(X)</text><text class="s" x="77" y="51">MDR en</text>
+<path class="w" d="M72,40 H77.5" marker-end="url(#a)"/>
+<rect class="n" x="96" y="2" width="16" height="9"/><text class="s" x="98" y="6">X·X</text><text class="s" x="98" y="10">MUL E1</text>
+<rect class="n" x="118" y="2" width="20" height="9"/><text class="s" x="119" y="6">temp1=X²</text><text class="s" x="119" y="10">X² en</text>
+<rect class="n" x="144" y="2" width="16" height="9"/><text class="s" x="146" y="6">X²·X</text><text class="s" x="146" y="10">MUL E2</text>
+<rect class="n" x="164" y="2" width="20" height="9"/><text class="s" x="165" y="6">temp2=X³</text><text class="s" x="165" y="10">X³ en</text>
+<path class="w" d="M112,6.5 H117.5" marker-end="url(#a)"/><path class="w" d="M138,6.5 H143.5" marker-end="url(#a)"/><path class="w" d="M160,6.5 H163.5" marker-end="url(#a)"/>
+<path class="w" d="M90,40 H93 V6.5 H95.5" marker-end="url(#a)"/>
+<rect class="n" x="96" y="22" width="16" height="9"/><text class="s" x="97" y="26">c(2)·X</text><text class="s" x="97" y="30">MUL E5</text>
+<rect class="n" x="120" y="22" width="18" height="9"/><text class="s" x="121" y="26">b(2)·X²</text><text class="s" x="121" y="30">MUL E3</text>
+<rect class="n" x="164" y="22" width="20" height="9"/><text class="s" x="165" y="26">a(2)·X³</text><text class="s" x="165" y="30">MUL E4</text>
+<path class="w" d="M93,26.5 H95.5" marker-end="url(#a)"/><path class="w" d="M128,11 V21.5" marker-end="url(#a)"/><path class="w" d="M174,11 V21.5" marker-end="url(#a)"/>
+<rect class="n" x="96" y="38" width="16" height="8"/><text class="s" x="97" y="43.5">Part3</text>
+<rect class="n" x="120" y="38" width="18" height="8"/><text class="s" x="121" y="43.5">Part2</text>
+<rect class="n" x="164" y="38" width="20" height="8"/><text class="s" x="165" y="43.5">Part1</text>
+<path class="w" d="M104,31 V37.5" marker-end="url(#a)"/><path class="w" d="M129,31 V37.5" marker-end="url(#a)"/><path class="w" d="M174,31 V37.5" marker-end="url(#a)"/>
+<text class="s" x="140.5" y="35.5">Part1/2/3 en</text>
+<path class="n" d="M110,56 L170,56 L162,66 L118,66Z"/><text class="s" x="122" y="62.6">A1: Part1+Part2+Part3+d(2)</text>
+<path class="w" d="M104,46 V55.5 M129,46 V55.5 M174,46 V50 H160 V55.5"/>
+<rect class="n" x="125" y="72" width="30" height="8"/><text class="s" x="127" y="77.5">Result (Y<tspan baseline-shift="sub" font-size="3.4">i</tspan>)</text><text class="s" x="157" y="77.5">Result en</text>
+<path class="w" d="M140,66 V71.5" marker-end="url(#a)"/><path class="h" d="M125,76 H59 V52.5" marker-end="url(#a)"/>
+<rect class="n" x="2" y="68" width="16" height="6"/><text class="s" x="4" y="72.5">1 | 0</text><text class="s" x="20" y="72.5">load limit (1: 10)</text>
+<rect class="n" x="2" y="80" width="24" height="9"/><text class="s" x="6" y="86">Limit</text>
+<rect class="n" x="34" y="80" width="12" height="9"/><text class="s" x="37" y="86">−1</text><text class="s" x="28" y="79">limit update</text>
+<path class="w" d="M10,74 V79.5" marker-end="url(#a)"/><path class="w" d="M26,84.5 H33.5" marker-end="url(#a)"/><path class="w" d="M46,84.5 H50 V93 H0.6 V71 H1.5" marker-end="url(#a)"/>
+<text class="s" x="2" y="98.5">Stop = (Limit == 0) → controller</text>
+<text class="s" x="62" y="88">X-wires: MDR → X·X (both), X²·X, c·X</text><text class="s" x="62" y="93">temp1 → X²·X, b·X²;  temp2 → a·X³</text></svg>
+<p><b>Control signals (21) + status Stop:</b> loadPC, PC update, AdrSel, memRead, memWrite, MDR en, loadY, Y en, E1–E5 (5 MUL enables), X² en, X³ en, Part1 en, Part2 en, Part3 en, Result en, load limit, limit update.</p>
 <table><tr><th>St</th><th>Operation</th><th>Asserted (rest 0)</th><th>Next</th></tr>
-<tr><td>S0</td><td>Init: Ra..Rd←2, PX←0, PY←20, i←0</td><td>Init</td><td>S1</td></tr>
-<tr><td>S1</td><td>if Eq10 → Stop; else X←M[PX], PX←PX+2</td><td>AdrSel=0, MemRd, LdX, IncX</td><td>Eq10?S9:S2</td></tr>
-<tr><td>S2</td><td>T←a·X</td><td>MulSel=0, TSel=0, LdT</td><td>S3</td></tr>
-<tr><td>S3</td><td>T←T+b</td><td>KSel=00, TSel=1, LdT</td><td>S4</td></tr>
-<tr><td>S4</td><td>T←T·X</td><td>MulSel=1, TSel=0, LdT</td><td>S5</td></tr>
-<tr><td>S5</td><td>T←T+c</td><td>KSel=01, TSel=1, LdT</td><td>S6</td></tr>
-<tr><td>S6</td><td>T←T·X</td><td>MulSel=1, TSel=0, LdT</td><td>S7</td></tr>
-<tr><td>S7</td><td>T←T+d (=Y<sub>i</sub>)</td><td>KSel=10, TSel=1, LdT</td><td>S8</td></tr>
-<tr><td>S8</td><td>M[PY]←T, PY←PY+2, i←i+1</td><td>AdrSel=1, MemWr, IncY, IncI</td><td>S1</td></tr>
-<tr><td>S9</td><td>Done</td><td>Stop=1</td><td>S9</td></tr></table>
-<p>(Prof's MinMax style, R12: replace i/==10 by a <b>Limit</b> register loaded with 10 via mux, −1 adder, <b>stop</b> when 0; PC+2 adder for 16-bit words.) State reg 4 bits (10 states); total = 1 + 10×8 + 1 = 82 cycles. <b>Clock period (25-2c):</b> longest reg→reg path: T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>mux</sub>+t<sub>MUL</sub>, t<sub>mux</sub>+t<sub>ADD</sub>, t<sub>mux</sub>+t<sub>mem</sub>) + t<sub>mux</sub> + t<sub>setup</sub> (+t<sub>ctrl</sub> if select lines settle after data). MUL dominates: <b>T<sub>c</sub> = t<sub>clk-q</sub>+t<sub>mux</sub>+t<sub>MUL</sub>+t<sub>mux</sub>+t<sub>setup</sub></b>; e.g. 30+25+400+25+20 = 500 ps (assumed t<sub>MUL</sub>=400). Memory path 30+25+250+20 = 325 ps.</p></div>
+<tr><td>S0</td><td>PC←0, Y←Y<sub>base</sub>, Limit←10</td><td>loadPC, PC update, loadY, Y en, load limit, limit update</td><td>S1</td></tr>
+<tr><td>S1</td><td>if Stop → S7; else MDR←M[PC], PC←PC+2</td><td>AdrSel=0, memRead, MDR en, PC update</td><td>Stop?S7:S2</td></tr>
+<tr><td>S2</td><td>temp1←X·X; Part3←c·X</td><td>E1, X² en, E5, Part3 en</td><td>S3</td></tr>
+<tr><td>S3</td><td>temp2←temp1·X; Part2←b·temp1</td><td>E2, X³ en, E3, Part2 en</td><td>S4</td></tr>
+<tr><td>S4</td><td>Part1←a·temp2</td><td>E4, Part1 en</td><td>S5</td></tr>
+<tr><td>S5</td><td>Result←Part1+Part2+Part3+d</td><td>Result en</td><td>S6</td></tr>
+<tr><td>S6</td><td>M[Y]←Result; Y←Y+2; Limit←Limit−1</td><td>AdrSel=1, memWrite, Y en, limit update</td><td>S1</td></tr>
+<tr><td>S7</td><td>Done</td><td>Stop</td><td>S7</td></tr></table>
+<p>3-bit state (8 states); 6 cycles per Y ⇒ 1 + 10×6 + 1 = 62 cycles. <b>Clock period (25-2c):</b> check every reg→reg path, take the max: MDR→temp1 = t<sub>clk-q</sub>+t<sub>MUL</sub>+t<sub>setup</sub>; Parts→Result = t<sub>clk-q</sub>+t<sub>A1</sub>+t<sub>setup</sub>; PC→MDR = t<sub>clk-q</sub>+t<sub>mux</sub>+t<sub>mem</sub>+t<sub>setup</sub>; PC→PC, Y→Y, Limit→Limit = t<sub>clk-q</sub>+t<sub>add</sub>+t<sub>mux</sub>+t<sub>setup</sub>. <b>T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>MUL</sub>, t<sub>A1</sub>, t<sub>mux</sub>+t<sub>mem</sub>, t<sub>add</sub>+t<sub>mux</sub>) + t<sub>setup</sub></b>; e.g. t<sub>MUL</sub>=400: 30+400+20 = 450 ps. (Alternative: Horner Y = ((aX+b)X+c)X+d with 1 MUL + 1 adder, more states, fewer FUs.)</p></div>
 
 <div class="q"><b>#37</b> GCD in C, single-cycle datapath + controller, clock <span class="tg">24-2</span>
 <pre>int GCD(int a, int b){
