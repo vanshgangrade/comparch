@@ -4,7 +4,7 @@
 @page{size:A4;margin:3mm}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:#fff;color:#000}
-body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.3pt;line-height:1.06}
+body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.4pt;line-height:1.06}
 .page{width:204mm;height:290.6mm;overflow:hidden;page-break-after:always;display:flex;flex-direction:column}
 .page:last-child{page-break-after:auto}
 .cols{column-count:4;column-gap:1.4mm;column-rule:0.3pt solid #999;column-fill:auto;flex:1;min-height:0;overflow:hidden}
@@ -12,7 +12,7 @@ body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.3pt;line-heigh
 .band figure{margin:0;flex:1 1 0}
 .band figure:nth-child(3){flex:0.83 1 0}
 .band img{width:100%;display:block}
-figcaption{font-size:4.1pt;line-height:1.05}
+figcaption{font-size:4.15pt;line-height:1.05}
 h1{font-size:6pt;margin:0 0 .3mm;text-align:center}
 h2{font-size:5.2pt;margin:.5mm 0 .3mm;background:#000;color:#fff;padding:0 .8mm;break-after:avoid}
 .q{margin:0 0 .4mm;padding-top:.2mm;border-top:.3pt solid #000}
@@ -21,10 +21,10 @@ h2{font-size:5.2pt;margin:.5mm 0 .3mm;background:#000;color:#fff;padding:0 .8mm;
 p{margin:.15mm 0}
 ul,ol{margin:.1mm 0 .1mm 2.3mm;padding:0}
 li{margin:0}
-table{border-collapse:collapse;width:100%;margin:.25mm 0;font-size:4.1pt;line-height:1.05}
+table{border-collapse:collapse;width:100%;margin:.25mm 0;font-size:4.15pt;line-height:1.05}
 td,th{border:.3pt solid #555;padding:0 .35mm;vertical-align:top;overflow-wrap:anywhere}
 th{background:#e4e4e4}
-pre,code{font-family:"Liberation Mono","DejaVu Sans Mono",monospace;font-size:3.8pt}
+pre,code{font-family:"Liberation Mono","DejaVu Sans Mono",monospace;font-size:3.85pt}
 pre{margin:.2mm 0;white-space:pre-wrap;line-height:1.06;background:#f3f3f3;padding:.3mm .5mm}
 svg{display:block;width:100%;height:auto;margin:.3mm 0;break-inside:avoid}
 svg text{font-family:Carlito,sans-serif;font-size:5.6px}
@@ -48,9 +48,9 @@ p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 
 <h1>CS F342 Comp Arch — Midsem Cheatsheet (2021–2025 papers)</h1>
 <table class="idx"><tr><th>Paper</th><th>Question → item #</th></tr>
-<tr><td>21-22</td><td>1a→5, 1b→2, 1c→3, 1d→4, 1e→29, 2a→19, 2b→30, 2c→18, 3→31</td></tr>
-<tr><td>22-23</td><td>1a→1, 1b→2, 1c→4, 1d→18, 2a→23, 2b→17, 2c→24, 2d→25, 2e→26, 3→36, 4→27, 5→33, 6→28</td></tr>
-<tr><td>23-24</td><td>1a→6, 1b→9, 1c→7, 1d→18, 1e→5, 1f→15, 2a→20, 2b→22, 3a→32, 3b→19, 4→39, 5a→17, 5b→34</td></tr>
+<tr><td>21-22</td><td>1a→5, 1b→2, 1c→3, 1d→4, 1e→29, 2a→19, 2b→(hazard: not in syllabus), 2c→18, 3→31</td></tr>
+<tr><td>22-23</td><td>1a→1, 1b→2, 1c→4, 1d→18, 2a→23, 2b→17, 2c→24, 2d→25, 2e→26, 3→36, 4→27, 5→33, 6→(NOP/hazard: not in syllabus)</td></tr>
+<tr><td>23-24</td><td>1a→6, 1b→9, 1c→7, 1d→18, 1e→5, 1f→(forwarding: not in syllabus), 2a→20, 2b→22, 3a→32, 3b→19, 4→39, 5a→17, 5b→34</td></tr>
 <tr><td>24-25</td><td>1a→8, 1b→9, 1c→14, 1d→4, 1e→17, 1f→18, 1g→16, 2→37, 3a→21, 3b→32, 3c→38</td></tr>
 <tr><td>25-26</td><td>1a→12, 1b→13, 1c→35, 2→36, 3a→9, 3b→4, 3c→10, 3d→11, 4a→14, 4b→18, 4c→16</td></tr></table>
 <p class="tg">Tag after each heading = papers where it appeared (yr-Q). Same Q again in exam → write the same answer. Opcodes: R 000000, lw 100011, sw 101011, beq 000100, addi 001000, j 000010, jal 000011. Multicycle cycles: lw 5, sw 4, R 4, addi 4, beq 3, j 3.</p>
@@ -58,19 +58,19 @@ p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 <h2>A. THEORY</h2>
 
 <div class="q"><b>#1</b> Why opcode + funct fields instead of only opcode? <span class="tg">22-1a</span>
-<ul><li>A 6-bit opcode can encode only 2<sup>6</sup>=64 instructions. All R-type instrs share opcode 000000 and are told apart by the 6-bit <b>funct</b> → 64 more ALU ops without widening the 32-bit instruction.</li>
+<p><b>Official key: with only opcode the decoder complexity would increase from 6:2<sup>6</sup> to 12:2<sup>12</sup>.</b></p><ul><li>A 6-bit opcode can encode only 2<sup>6</sup>=64 instructions. All R-type instrs share opcode 000000 and are told apart by the 6-bit <b>funct</b> → 64 more ALU ops without widening the 32-bit instruction.</li>
 <li>R-type needs no 16-bit immediate, so its low bits are free for shamt+funct; I/J types need those bits for imm/address, so they get unique opcodes. Keeps all instrs 32-bit with fields at fixed positions (regularity → simple hardware).</li>
 <li>Decoding becomes two-level: main decoder looks only at opcode (6 inputs); ALU decoder uses funct+ALUOp → smaller, faster control (see #10).</li></ul></div>
 
 <div class="q"><b>#2</b> Why is single-cycle control called a "Truth Table"? <span class="tg">21-1b, 22-1b</span>
-<p>In single-cycle MIPS every instr finishes in one clock, so the control unit is <b>purely combinational</b>: no state/memory, its outputs (RegWrite, RegDst, ALUSrc, Branch, MemWrite, MemtoReg, ALUOp, Jump) depend <i>only</i> on the present inputs (opcode, funct). A combinational circuit is completely specified by listing outputs for every input combination = a truth table (one row per opcode), which is then implemented as SOP logic/PLA/ROM. (Multicycle control is an FSM → state table, not truth table.)</p></div>
+<p><b>Official key: "No next state."</b> In single-cycle MIPS every instr finishes in one clock, so the control unit is <b>purely combinational</b>: no state/memory, its outputs (RegWrite, RegDst, ALUSrc, Branch, MemWrite, MemtoReg, ALUOp, Jump) depend <i>only</i> on the present inputs (opcode, funct). A combinational circuit is completely specified by listing outputs for every input combination = a truth table (one row per opcode), which is then implemented as SOP logic/PLA/ROM. (Multicycle control is an FSM → state table, not truth table.)</p></div>
 
 <div class="q"><b>#3</b> How does the processor capture the side effects when instrs complete? <span class="tg">21-1c</span>
 <p>Side effects = changes to architectural state: <b>register file</b>, <b>data memory</b> and <b>PC</b>. Combinational logic computes the new values during the cycle; they are captured only at the <b>rising clock edge</b> by state elements whose write enable is asserted: RF written if RegWrite=1 (WD3→reg A3), memory written if MemWrite=1 (WD→M[A]), PC←PC' every edge (multicycle: PCEn). Intermediate results in multicycle/pipeline are held in non-architectural registers (IR, MDR, A, B, ALUOut / pipeline regs) and committed in the write-back step.</p></div>
 
 <div class="q"><b>#4</b> &lt;&lt;2 behaves as &lt;&lt;1 — which instrs affected? <span class="tg">21-1d, 22-1c, 24-1d, 25-3b</span>
-<ul><li>Shift-by-2 converts a <i>word</i> offset to a <i>byte</i> offset; used only for PC-relative/jump targets.</li>
-<li><b>beq/bne (taken)</b>: PCBranch = PC+4 + (SignImm&lt;&lt;1) = PC+4+2·imm instead of 4·imm → wrong, half-word aligned address (e.g., imm=3 → PC+4+6 not PC+4+12) → fetches garbage/misaligned instr. Not-taken branch still OK (PC+4).</li>
+<ul><li>Shift-by-2 converts a <i>word</i> offset to a <i>byte</i> offset; used only for PC-relative/jump targets. <b>Always state the EFFECT</b> (graded 2025 lost marks for only saying "last 2 bits must be 00").</li>
+<li><b>Official key: BNE, J — instruction alignment problem.</b></li><li><b>beq/bne (taken)</b>: PCBranch = PC+4 + (SignImm&lt;&lt;1) = PC+4+2·imm instead of 4·imm → wrong, half-word aligned address (e.g., imm=3 → PC+4+6 not PC+4+12) → fetches garbage/misaligned instr. Not-taken branch still OK (PC+4).</li>
 <li><b>j (and jal)</b>: JTA = {PC+4[31:28], addr&lt;&lt;1} → 26b&lt;&lt;1 = 27 bits only; target ≈ half the intended address, wrong/misaligned → jumps to wrong location.</li>
 <li>Same in multicycle (ALUOut←PC+SignImm&lt;&lt;2 in Decode; jump path). <b>Not affected:</b> R-type (add, sub, and, or, slt), lw, sw, addi — they don't use the shifters (lw/sw offsets are already byte offsets).</li></ul></div>
 
@@ -106,7 +106,7 @@ p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 <p><b>Yes.</b> Single-cycle: PC has <b>no enable</b> — every instruction completes in 1 cycle, so PC←PC' at every clock edge. Multicycle: an instr takes 3–5 cycles and the PC (memory address, PC+4, branch target computations) must hold its value during intermediate states, so PC has an enable: <b>PCEn = PCWrite + Branch·Zero</b> (+ <b>Jump</b> in prof's datapath: OR gate of PCWrite, Jump, Branch·Zero). PCWrite=1 only in Fetch (PC←PC+4); Branch·Zero in beq state; Jump in J state.</p></div>
 
 <div class="q"><b>#12</b> Why can't single-cycle use one memory for fetch + data? <span class="tg">25-1a</span>
-<p>A single-ported memory has one address port and one read/write data port → only <b>one access per cycle</b>. Single-cycle lw/sw need instruction fetch AND data read/write in the <b>same</b> cycle → structural hazard (address port conflict). <b>Fix:</b> separate <b>instruction memory and data memory</b> (Harvard; split I-cache/D-cache) — or a dual-ported memory; (multicycle instead reuses one memory in different cycles with the IorD mux).</p></div>
+<p>(Graded 2025: "no register/storage to hold the fetched instruction while the same memory is used for data" earned 2/2; "add A, B regs" got 0.5 — <i>not for single cycle</i>.) A single-ported memory has one address port and one read/write data port → only <b>one access per cycle</b>. Single-cycle lw/sw need instruction fetch AND data read/write in the <b>same</b> cycle → resource (port) conflict. <b>Fix:</b> separate <b>instruction memory and data memory</b> (Harvard; split I-cache/D-cache) — or a dual-ported memory; (multicycle instead reuses one memory in different cycles with the IorD mux).</p></div>
 
 <div class="q"><b>#13</b> Illegal control-signal combination <span class="tg">25-1b</span>
 <p>e.g. <b>RegWrite=1 with MemWrite=1</b> (during sw): memory is written correctly but the RF also writes Result (ALUResult = address, or garbage ReadData) into register rt/rd (whatever RegDst selects) → the source register (rt) being stored gets <b>corrupted</b>. Others: Branch=1 &amp; Jump=1 (two PC sources, Jump mux overrides → wrong PC); MemtoReg=1 with MemRead=0 (writes undefined data).</p></div>
@@ -114,10 +114,7 @@ p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 <div class="q"><b>#14</b> Methods of generating control signals in pipeline <span class="tg">24-1c, 25-4a</span>
 <p>Problem (slides 30–31): 10 control lines are needed in later stages, but while instr i is in EX, instr i+1 is being decoded → if controls are not stored, i+1's controls overwrite i's (erroneous signals).</p><ol><li><b>Strategy-1 (slide 27): pass the instruction, decode in every stage</b>: the instruction (opcode/funct) travels in IF/ID, ID/EX, EX/MEM, MEM/WB and each stage has its own control unit generating only its signals. <i>Adv:</i> narrow stage regs (just instr bits), simple per-stage control. <i>Disadv:</i> 4 duplicated decoders (area), decode delay added inside each stage's critical path.</li>
 <li><b>Strategy-2 (slide 28, P&amp;H): decode once in ID, pass control bits</b>: same control unit as single-cycle (truth table) generates all 10 lines in ID; stage registers are extended with fields EX/M/WB: ID/EX 9 bits (RegDst, ALUOp[1:0], ALUSrc, Branch, MemRead, MemWrite, RegWrite, MemtoReg), EX/MEM 5 bits, MEM/WB 2 bits; each stage consumes its group (EX: RegDst, ALUOp, ALUSrc; MEM: Branch, MemRead, MemWrite; WB: RegWrite, MemtoReg; Jump used in IF). <i>Adv:</i> one decoder, reuses single-cycle CU, decode delay off the later stages. <i>Disadv:</i> wider pipeline regs (more flip-flops/power).</li>
-<li><b>Microprogrammed/ROM</b>: flexible, easy to change; slower, big ROM. Hazard unit separately generates Stall, Flush, Forward signals.</li></ol></div>
-
-<div class="q"><b>#15</b> Can forwarded data be taken before the stage (pipeline) registers? (R-type→R-type) <span class="tg">23-1f</span>
-<p><b>No.</b> I1 computes its result in EX in cycle c; I2 needs it in its EX in cycle c+1. In cycle c+1 the wire before EX/MEM carries I2's <i>own</i> ALU output (I1's value is now in EX/MEM) → wrong data / combinational loop. Taking it in cycle c would chain ALU → forward mux → ID path in one cycle (longer clock). The pipeline register holds I1's result stable for the whole next cycle, so forward from <b>EX/MEM</b> (ALUOutM) and <b>MEM/WB</b> (ResultW) registers: ForwardAE=10 if (rsE≠0 &amp; rsE==WriteRegM &amp; RegWriteM), 01 if from WB.</p></div>
+<li><b>Microprogrammed/ROM</b>: flexible, easy to change; slower, big ROM.</li></ol></div>
 
 <div class="q"><b>#16</b> Setup &amp; hold time; derive clock constraints <span class="tg">24-1g, 25-4c</span>
 <p><b>Setup t<sub>setup</sub></b>: min time D must be stable <i>before</i> the clock edge. <b>Hold t<sub>hold</sub></b>: min time D must stay stable <i>after</i> the edge. Path R1 → combinational logic → R2:<br>
@@ -125,7 +122,7 @@ p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 <b>Hold:</b> new data launched at the same edge must not reach R2 before t<sub>hold</sub>; earliest arrival t<sub>ccq</sub>+t<sub>cd</sub>: <b>t<sub>ccq</sub> + t<sub>cd</sub> ≥ t<sub>hold</sub></b> (independent of T<sub>c</sub>; fix by adding buffers). With clock skew: T<sub>c</sub> ≥ t<sub>pcq</sub>+t<sub>pd</sub>+t<sub>setup</sub>+t<sub>skew</sub>; t<sub>ccq</sub>+t<sub>cd</sub> ≥ t<sub>hold</sub>+t<sub>skew</sub>. (pcq/pd = propagation = max; ccq/cd = contamination = min.)</p></div>
 
 <div class="q"><b>#17</b> 128 registers &amp; instruction set ×4 — effect on fields <span class="tg">22-2b, 23-5a, 24-1e</span>
-<p>Reg fields: log<sub>2</sub>128 = <b>7 bits</b> (was 5). 4× instrs → opcode <b>6→8 bits</b> (and funct 6→8 if R-types also ×4).<br>
+<p> <b>[official key ✓]</b> Reg fields 5→7 bits, opcode 6→8 bits, I-type imm field reduced. Reg fields: log<sub>2</sub>128 = <b>7 bits</b> (was 5). 4× instrs → opcode <b>6→8 bits</b> (and funct 6→8 if R-types also ×4).<br>
 <b>R-type</b>: op 8 + rs 7 + rt 7 + rd 7 + shamt 5 + funct 8 = <b>42 bits</b> (+10). <b>I-type</b>: op 8 + rs 7 + rt 7 + imm 16 = <b>38 bits</b> (+6).<br>
 If instruction must stay 32-bit: I-type imm shrinks to 32−8−14 = <b>10 bits</b> (smaller constants/branch range); R-type has only 32−8−21 = <b>3 bits</b> left for shamt+funct → must drop shamt/shrink funct or use more opcodes. Effects: bigger/slower RF, bigger decoder, fewer bits for constants.</p></div>
 
@@ -135,9 +132,10 @@ If instruction must stay 32-bit: I-type imm shrinks to 32−8−14 = <b>10 bits<
 <p>Cycle 5: I1 in <b>WB</b>, I2 MEM, I3 EX, <b>I4 in ID</b>, I5 IF. RF is <b>written in 1st half</b> of cycle (by I1) and <b>read in 2nd half</b> (by I4, which reads its rs &amp; rt fields). (Prof: RF written @posedge, stage registers @negedge ⇒ write completes before I4's read is latched.)</p>
 <table><tr><th>Program (I1 … I5)</th><th>Written</th><th>Read (by I4)</th></tr>
 <tr><td>21: or R2,R4,R5 / sw R5,72(R0) / sub R0,R1,R2 / <b>lw R3,15(R1)</b> / addi</td><td>R2 (or)</td><td>R1 (base; R3 on RD2 unused)</td></tr>
-<tr><td>22: or $t2,$t4,$t5 / sub / sw / <b>addi $t1,$t1,50</b> / lw</td><td>$t2</td><td>$t1</td></tr>
+<tr><td>22: or $t2,$t4,$t5 / sub / sw / <b>addi $t1,$t1,50</b> / lw</td><td>$t2</td><td>$t1 <b>[official key ✓]</b></td></tr>
 <tr><td>23,24: or $t2,$t4,$t5 / sw / addi / <b>lw $t3,15($t1)</b> / sub</td><td>$t2</td><td>$t1 ($t3 unused)</td></tr>
 <tr><td>25: addi $t1,$t1,50 / lw / or / <b>sw $t5,72($t0)</b> / sub</td><td>$t1</td><td>$t0, $t5</td></tr></table>
+<p>(Graded 2025, full marks: cycle 5 — SUB IF, SW ID reads $t0 (and $t5), OR EX, LW MEM, ADDI WB writes $t1.)</p>
 <pre>      c1 c2 c3 c4  c5
 I1    IF ID EX MEM WB  ← writes (1st half)
 I2       IF ID EX  MEM
@@ -186,18 +184,18 @@ Control (j, prof's table): Jump=1, RegWrite=0, MemRead=0, MemWrite=0, RegDst/ALU
 <p>Control (30+250+50=330 ps) is ready before RF data (430) → not on critical path. <b>T<sub>c,min</sub> = max = 925 ps (lw)</b> → f ≈ 1.08 GHz.</p></div>
 
 <div class="q"><b>#23</b> Bytes M3=00100000, M2=01000000, M1=00001000, M0=00000001 → instr <span class="tg">22-2a</span>
-<p><b>MIPS big-endian</b> (M0 = MSB): 0000 0001 0000 1000 0100 0000 0010 0000 = 0x01084020 → 000000|01000|01000|01000|00000|100000 ⇒ <b>R-type: add $t0, $t0, $t0</b> (op 0, rs=rt=rd=8, shamt 0, funct 0x20).<br>
+<p><b>MIPS big-endian</b> (M0 = MSB): 0000 0001 0000 1000 0100 0000 0010 0000 = 0x01084020 → 000000|01000|01000|01000|00000|100000 ⇒ <b>R-type: add $t0, $t0, $t0</b> (key: "R-type, $t0 = $t0 funct $t0") <b>[official key ✓]</b> (op 0, rs=rt=rd=8, shamt 0, funct 0x20).<br>
 (If little-endian, M3 = MSB: 0x20400801 = 001000|00010|00000|0000100000000001 ⇒ I-type addi $zero, $v0, 2049.)</p></div>
 
 <div class="q"><b>#24</b> PC = 0x30000000: range reachable by beq <span class="tg">22-2c</span>
 <p>Target = PC+4 + SignExt(imm)·4, imm 16-bit ∈ [−2<sup>15</sup>, 2<sup>15</sup>−1]. PC+4 = 0x30000004.<br>
 Min = 0x30000004 − 2<sup>17</sup> = 0x30000004 − 0x20000 = <b>0x2FFE0004</b><br>
 Max = 0x30000004 + (2<sup>15</sup>−1)·4 = 0x30000004 + 0x1FFFC = <b>0x30020000</b><br>
-≈ ±128 KB (−32768 … +32767 instructions from PC+4), word aligned.</p></div>
+≈ ±128 KB (−32768 … +32767 instructions from PC+4), word aligned. <b>[official key ✓]</b> Key accepts <b>[0x2FFE0004, 0x30020000]</b> (also lists [0x2FFFE000, 0x3001FFFC]).</p></div>
 
 <div class="q"><b>#25</b> Horizontal µprogram control-memory width <span class="tg">22-2d</span>
 <p>Horizontal: one bit per control line → control field = <b>11 bits</b>. Condition select for 8 status bits: log<sub>2</sub>8 = <b>3 bits</b> (MUX select). Next-address for 128 words: log<sub>2</sub>128 = <b>7 bits</b>.<br>
-Width = 11 + 3 + 7 = <b>21 bits</b>; control memory = 128 × 21 bits. (If status were also one-hot: 11+8+7 = 26. Prof's format [M | CF | NA] adds a 1-bit mode/dispatch field → 22.)</p></div>
+Width = 11 + 3 + 7 = <b>21 bits</b>; control memory = 128 × 21 bits. (<b>Official key: 26 or 21</b> — 26 if status one-hot: 11+8+7. Prof's format [M | CF | NA] adds a 1-bit mode/dispatch field → 22.)</p></div>
 
 <div class="q"><b>#26</b> Translate MIPS to C (D base $s6, m=$s0) <span class="tg">22-2e</span>
 <pre>addi $t0,$s6,4    # t0 = &amp;D[1]
@@ -206,12 +204,12 @@ sw   $t1,0($t0)   # D[1] = &amp;D[0]
 lw   $t0,0($t0)   # t0 = D[1] (= &amp;D[0])
 add  $s0,$t1,$t0  # m = &amp;D[0] + D[1]
 add  $s0,$s0,$t0  # m = m + D[1]</pre>
-<p><b>C:</b> <code>D[1] = (int)&amp;D[0];  m = (int)&amp;D[0] + D[1] + D[1];</code> ⇒ m = 3·(base address of D).</p></div>
+<p><b>C:</b> <code>D[1] = (int)&amp;D[0];  m = (int)&amp;D[0] + D[1] + D[1];</code> ⇒ m = 3·(base address of D). Key: <b>M = 3*(&amp;D[0])</b> <b>[official key ✓]</b></p></div>
 
 <div class="q"><b>#27</b> ld/sd (no offset) in single-cycle <span class="tg">22-4</span>
-<p><b>(a)</b> Old lw: 30+250+150+200+250+25+20 = 925 ps. New ld needs no ALU: t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>RFread</sub>+t<sub>mem</sub>+t<sub>mux</sub>+t<sub>RFwrite</sub> = 30+250+150+250+25+20 = <b>725</b>. R-type = 30+250+150+25+200+25+20 = 700; beq ≈ 700. ⇒ <b>T<sub>c</sub> = 725 ps</b> (ld still longest).<br>
-<b>(b)</b> Each lw/sw now needs an extra addi for the address: N' = N(1+0.26+0.12) = 1.38N. Old: N×925 = 925N. New: 1.38N×725 = 1000.5N ⇒ <b>slower</b>; 1000.5/925 = 1.082 → ≈ <b>8.2% slower</b>.<br>
-<b>(c)</b> The fraction f of loads/stores (that need an extra address instruction) vs the cycle-time gain: faster iff (1+f)·725 &lt; 925 ⇒ <b>f &lt; 27.6%</b>. (Here f = 38% → slower.)<br>
+<p><b>(a)</b> Old lw: 30+250+150+200+250+25+20 = 925 ps. New ld needs no ALU: t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>RFread</sub>+t<sub>mem</sub>+t<sub>mux</sub>+t<sub>RFwrite</sub> = 30+250+150+250+25+20 = <b>725</b>. R-type = 30+250+150+25+200+25+20 = 700; beq ≈ 700. ⇒ <b>T<sub>c</sub> = 725 ps</b> (ld still longest) <b>[official key ✓]</b>.<br>
+<b>(b)</b> Each lw/sw now needs an extra addi for the address: N' = N(1+0.26+0.12) = 1.38N. Old: N×925 = 925N. New: 1.38N×725 = 1000.5N ⇒ <b>slower</b> (key: "Slower, 1000.5 ps" per instr) <b>[official key ✓]</b>; 1000.5/925 = 1.082 → ≈ <b>8.2% slower</b>.<br>
+<b>(c)</b> Key: <b>number of lw &amp; sw</b> <b>[official key ✓]</b>. The fraction f of loads/stores (that need an extra address instruction) vs the cycle-time gain: faster iff (1+f)·725 &lt; 925 ⇒ <b>f &lt; 27.6%</b>. (Here f = 38% → slower.)<br>
 <b>(d)</b> Data-memory address taken directly from RD1:</p>
 <svg viewBox="0 0 186 50"><rect class="n" x="4" y="4" width="36" height="38"/><text x="16" y="26">RF</text><text class="s" x="5" y="11">A1=rs</text><text class="s" x="30" y="11">RD1</text><text class="s" x="5" y="34">A2=rt</text><text class="s" x="30" y="34">RD2</text>
 <path class="n" d="M80,3 L98,10 L98,22 L80,29 L80,19 L83,16 L80,13Z"/><text x="84" y="18">ALU</text>
@@ -248,23 +246,6 @@ add  $s0,$s0,$t0  # m = m + D[1]</pre>
 <p><b>(2) Modified:</b> ALU (OR op + ALU_OR input), control unit (decode new opcode; 7 instrs ⇒ 3-bit opcode, new states OR1, OR2, new signal equations), AC load logic, bus (R1, R2 drivers).<br>
 <b>(3) States / µops:</b> FETCH1: AR←PC; FETCH2: DR←M, PC←PC+1; FETCH3: IR←DR[op], AR←DR[addr]; <b>OR1: AC←R1</b> (R1→bus, ALU pass); <b>OR2: AC←AC∨R2</b> → FETCH1.<br>
 OR1 = I<sub>OR</sub>·T3, OR2 = I<sub>OR</sub>·T4 (I<sub>OR</sub> = opcode decoder output). <b>R1BUS = OR1; R2BUS = OR2; ALU_OR = OR2; ALU_PASS = LD2 + OR1; ACLD = LD2 + ADD2 + AND2 + OR1 + OR2</b> (old terms + new); CLR seq. counter after OR2.</p></div>
-
-<div class="q"><b>#30</b> Pipeline: hazard LW Ri,off(Rj) → SW Ri,off(Rk) <span class="tg">21-2b</span>
-<p>sw needs Ri only in MEM (as write data); lw's data is ready at end of its MEM ⇒ forward <b>MEM/WB → MEM</b> (no stall). Add RtM (5 b) to EX/MEM and a mux before Dmem WD.<br>
-<b>Detect (ForwardM=1):</b> RegWriteW · MemtoRegW · MemWriteM · (WriteRegW ≠ 0) · (WriteRegW == RtM). WriteDataM' = ForwardM ? ResultW : WriteDataM.<br>
-If base Rk == Ri (address needs the loaded value in EX) ⇒ load-use <b>stall</b> 1 cycle: lwstall = MemtoRegE · (RsD == RtE); modify old lwstall so sw data reg doesn't stall: lwstall = MemtoRegE·((RsD==RtE) + (RtD==RtE)·¬MemWriteD); StallF=StallD=FlushE=lwstall. R0 never forwarded.</p>
-<svg viewBox="0 0 186 60"><rect class="n" x="14" y="7" width="6" height="50"/><text class="s" x="6" y="5.5">EX/MEM</text><rect class="n" x="124" y="7" width="6" height="50"/><text class="s" x="116" y="5.5">MEM/WB</text>
-<rect class="n" x="66" y="9" width="40" height="26"/><text x="72" y="24">Data Mem</text><text class="s" x="67" y="15">A</text><text class="s" x="67" y="30">WD</text><text class="s" x="98" y="15">RD</text>
-<path class="w" d="M20,13.5 H65" marker-end="url(#a)"/><text class="s" x="24" y="12">ALUOutM</text>
-<path class="nw" d="M47,19 L54,22 L54,34 L47,37Z"/><text class="s" x="44" y="17">FwdM*</text><text class="s" x="48" y="25.5">0</text><text class="s" x="48" y="34.5">1</text>
-<path class="w" d="M20,24 H46" marker-end="url(#a)"/><text class="s" x="21" y="22.5">WriteDataM</text>
-<path class="w" d="M54,28.5 H65" marker-end="url(#a)"/>
-<path class="w" d="M106,13.5 H123" marker-end="url(#a)"/><path class="w" d="M130,13.5 H139" marker-end="url(#a)"/><path class="w" d="M130,20.5 H139" marker-end="url(#a)"/>
-<path class="n" d="M140,10 L146,13 L146,21 L140,24Z"/><text class="s" x="148" y="12">MemtoReg</text>
-<path class="h" d="M146,17 H154 V58 H40 V33 H46" marker-end="url(#a)"/><text class="s" x="156" y="40">ResultW*</text>
-<rect class="nw" x="56" y="39" width="67" height="15"/><text class="s" x="57.5" y="43.5">Hazard unit*: ForwardM =</text><text class="s" x="57.5" y="48">RegWriteW·MemtoRegW·MemWriteM·</text><text class="s" x="57.5" y="52.5">(WriteRegW≠0)·(WriteRegW==RtM)</text>
-<path class="w" d="M56,47 H50.5 V36" marker-end="url(#a)"/>
-<path class="w" d="M20,42 H57" marker-end="url(#a)"/><text class="s" x="22" y="40.5">RtM*</text></svg></div>
 
 <div class="q"><b>#31</b> Multicycle with 1-read-port RF <span class="tg">21-3</span>
 <p><b>(a)</b> Add a <b>2:1 MUX, 5-bit</b> (inputs IR[25:21]=rs and IR[20:16]=rt, 1 select "RA", 5-bit output) on the single Read-register address. The single RD (32 b) feeds both A and B, so A and B get <b>write enables</b> (AWr, BWr). Modified: RF, A, B, controller (one extra state). <b>(b)</b></p>
@@ -374,7 +355,7 @@ end</pre></div>
 <path class="n" d="M152,6 L160,9 L160,23 L152,26Z"/><text class="s" x="148" y="4">M1 (Jump)</text><text class="s" x="117" y="12">PCBranch/PC+4 0</text><text class="s" x="139" y="22">JTA 1</text>
 <path class="w" d="M160,16 H165" marker-end="url(#a)"/><rect class="n" x="166" y="11" width="16" height="10"/><text x="169" y="18">PC</text>
 <text class="s" x="116" y="31">JTA = {PC+4[31:28], addr26, 00}</text><text class="s" x="116" y="38">jal: Jump=1, RegWrite=1,</text><text class="s" x="116" y="44">RegDst=10, MemtoReg=10</text></svg>
-<p><b>Main decoder row (op 000011):</b> RegWrite=1, RegDst=10, ALUSrc=X, Branch=0, MemWrite=0, MemtoReg=10, ALUOp=XX, Jump=1. <b>New control:</b> RegDst and MemtoReg widened to 2 bits (equivalently one new signal <b>Link/JAL</b> driving two extra 2:1 muxes: WriteReg = JAL ? 31 : old; Result = JAL ? PC+4 : old). Existing instrs use 00/01 → unaffected. Return later with jr $ra.</p></div>
+<p><b>Main decoder row (op 000011):</b> RegWrite=1, RegDst=10, ALUSrc=X, Branch=0, MemWrite=0, MemtoReg=10, ALUOp=XX, Jump=1. <b>New control:</b> RegDst and MemtoReg widened to 2 bits (equivalently one new signal <b>Link/JAL</b> driving two extra 2:1 muxes: WriteReg = JAL ? 31 : old; Result = JAL ? PC+4 : old). Existing instrs use 00/01 → unaffected. Return later with jr $ra. (Graded 2025, 5+3: RegDst mux 2-bit {rt, rd, 31 = 5'b11111 = 0x1F}, new WD mux PC+4 vs M5 output with select <b>JumpLink</b>; control row for jal: JumpLink selects PC+4, RegDst = 10.)</p></div>
 
 <div class="q"><b>#36</b> 16-bit multi-cycle single-purpose processor: Y<sub>i</sub>=aX<sub>i</sub><sup>3</sup>+bX<sub>i</sub><sup>2</sup>+cX<sub>i</sub>+d, a=b=c=d=2, 0≤i&lt;10 <span class="tg">22-3, 25-2 (graded answer layout, prof's MinMax style)</span>
 <p>Compute terms in parallel: X² = X·X, X³ = X²·X, Part1 = a·X³, Part2 = b·X², Part3 = c·X, Y = Part1+Part2+Part3+d. 16-bit data, byte-addressable ⇒ PC and Y pointers step by <b>2</b> (X<sub>0..9</sub> at 0,2,…,18; Y at Y<sub>base</sub>=20,…,38). <b>Limit</b> counter (10 → −1 each Y, <b>Stop</b> at 0) like MinMax.</p>
@@ -418,17 +399,20 @@ end</pre></div>
 <path class="w" d="M10,74 V79.5" marker-end="url(#a)"/><path class="w" d="M26,84.5 H33.5" marker-end="url(#a)"/><path class="w" d="M46,84.5 H50 V93 H0.6 V71 H1.5" marker-end="url(#a)"/>
 <text class="s" x="2" y="98.5">Stop = (Limit == 0) → controller</text>
 <text class="s" x="62" y="88">X-wires: MDR → X·X (both), X²·X, c·X</text><text class="s" x="62" y="93">temp1 → X²·X, b·X²;  temp2 → a·X³</text></svg>
-<p><b>Control signals (21) + status Stop:</b> loadPC, PC update, AdrSel, memRead, memWrite, MDR en, loadY, Y en, E1–E5 (5 MUL enables), X² en, X³ en, Part1 en, Part2 en, Part3 en, Result en, load limit, limit update.</p>
-<table><tr><th>St</th><th>Operation</th><th>Asserted (rest 0)</th><th>Next</th></tr>
-<tr><td>S0</td><td>PC←0, Y←Y<sub>base</sub>, Limit←10</td><td>loadPC, PC update, loadY, Y en, load limit, limit update</td><td>S1</td></tr>
-<tr><td>S1</td><td>if Stop → S7; else MDR←M[PC], PC←PC+2</td><td>AdrSel=0, memRead, MDR en, PC update</td><td>Stop?S7:S2</td></tr>
-<tr><td>S2</td><td>temp1←X·X; Part3←c·X</td><td>E1, X² en, E5, Part3 en</td><td>S3</td></tr>
-<tr><td>S3</td><td>temp2←temp1·X; Part2←b·temp1</td><td>E2, X³ en, E3, Part2 en</td><td>S4</td></tr>
-<tr><td>S4</td><td>Part1←a·temp2</td><td>E4, Part1 en</td><td>S5</td></tr>
-<tr><td>S5</td><td>Result←Part1+Part2+Part3+d</td><td>Result en</td><td>S6</td></tr>
-<tr><td>S6</td><td>M[Y]←Result; Y←Y+2; Limit←Limit−1</td><td>AdrSel=1, memWrite, Y en, limit update</td><td>S1</td></tr>
-<tr><td>S7</td><td>Done</td><td>Stop</td><td>S7</td></tr></table>
-<p>3-bit state (8 states); 6 cycles per Y ⇒ 1 + 10×6 + 1 = 62 cycles. <b>Clock period (25-2c):</b> check every reg→reg path, take the max: MDR→temp1 = t<sub>clk-q</sub>+t<sub>MUL</sub>+t<sub>setup</sub>; Parts→Result = t<sub>clk-q</sub>+t<sub>A1</sub>+t<sub>setup</sub>; PC→MDR = t<sub>clk-q</sub>+t<sub>mux</sub>+t<sub>mem</sub>+t<sub>setup</sub>; PC→PC, Y→Y, Limit→Limit = t<sub>clk-q</sub>+t<sub>add</sub>+t<sub>mux</sub>+t<sub>setup</sub>. <b>T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>MUL</sub>, t<sub>A1</sub>, t<sub>mux</sub>+t<sub>mem</sub>, t<sub>add</sub>+t<sub>mux</sub>) + t<sub>setup</sub></b>; e.g. t<sub>MUL</sub>=400: 30+400+20 = 450 ps. (Alternative: Horner Y = ((aX+b)X+c)X+d with 1 MUL + 1 adder, more states, fewer FUs.)</p></div>
+<p><b>Control signals = 19</b> (graded 2025, full marks): loadPC, PC update, memRead, memWrite, loadY, Y enable, load limit, limit update, E1–E5, X² enable, X³ enable, Part1/2/3 enable, Result enable. Input to controller: <b>Stop</b>. (+AdrSel if you draw the PC/Y address mux.) Controller drawn as a bubble with these arrows out and Stop in.</p>
+<table><tr><th>St</th><th>What it does</th><th>Asserted</th><th>Next</th></tr>
+<tr><td>T0</td><td>INIT: load everything (PC←0, Y←Y<sub>base</sub>, Limit←10)</td><td>loadPC, PC update, loadY, Y en, load limit, limit update</td><td>T1</td></tr>
+<tr><td>T1</td><td>X fetch (MDR←M[PC]), PC update (PC+2)</td><td>memRead, PC update</td><td>T2</td></tr>
+<tr><td>T2</td><td>X² calc (temp1←X·X)</td><td>E1, X² en</td><td>T3</td></tr>
+<tr><td>T3</td><td>X³ calc (temp2←X²·X)</td><td>E2, X³ en</td><td>T4</td></tr>
+<tr><td>T4</td><td>Part1 calc (a·X³)</td><td>E4, Part1 en</td><td>T5</td></tr>
+<tr><td>T5</td><td>Part2 calc (b·X²)</td><td>E3, Part2 en</td><td>T6</td></tr>
+<tr><td>T6</td><td>Part3 calc (c·X)</td><td>E5, Part3 en</td><td>T7</td></tr>
+<tr><td>T7</td><td>Adder A1: Result←P1+P2+P3+d</td><td>Result en</td><td>T8</td></tr>
+<tr><td>T8</td><td>WB at Y: M[Y]←Result</td><td>memWrite</td><td>T9</td></tr>
+<tr><td>T9</td><td>Update Y (Y←Y+2)</td><td>Y en</td><td>T10</td></tr>
+<tr><td>T10</td><td>Update Limit (Limit−1)</td><td>limit update</td><td>Stop ? done : T1</td></tr></table>
+<p>4-bit state; 10 cycles per Y (states can be merged/minimised, e.g. T2+T6, T3+T5 in parallel). <b>Clock period (25-2c, graded 5/5):</b> T<sub>c</sub> based on critical path; assuming memory read &gt; memory write and multiplication faster than memory: <b>T<sub>c</sub> = t<sub>clk-to-q</sub> + t<sub>mem</sub> + t<sub>setup</sub></b>. General: T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>MUL</sub>, t<sub>A1</sub>, t<sub>mux</sub>+t<sub>mem</sub>, t<sub>add</sub>+t<sub>mux</sub>) + t<sub>setup</sub> — check all reg→reg paths (PC→MDR, MDR→temp1, temp→Part, Parts→Result, Limit→Limit). (Alternative: Horner Y = ((aX+b)X+c)X+d with 1 MUL + 1 adder.)</p></div>
 
 <div class="q"><b>#37</b> GCD in C, single-cycle datapath + controller, clock <span class="tg">24-2</span>
 <pre>int GCD(int a, int b){
@@ -507,13 +491,6 @@ module tb; reg clk=0, rst=1, x=0; wire y;
     #12 rst=0; x=1; #10 x=0; #10 x=1; #10 x=1;
     #10 x=0; #10 x=1; #10 $finish; end
 endmodule</pre></div>
-<div class="q"><b>#28</b> NOPs, forwarding speed-up, code scheduling <span class="tg">22-6</span>
-<p><b>(a)</b> No fwd: (n+0.4n)×250 = 350n ps. Fwd: (n+0.05n)×300 = 315n ps. Speed-up = 350/315 = <b>1.11</b>.<br>
-<b>(b)</b> Let x = NOP fraction without forwarding (forwarded version still 0.05n). Need (1+x)·250 &gt; 1.05·300 = 315 ⇒ 1+x &gt; 1.26 ⇒ <b>x &gt; 26%</b> NOPs. (If NOPs scale proportionally, x/8 with fwd: 250(1+x) &gt; 300(1+x/8) ⇒ x &gt; 23.5%.)<br>
-<b>(c)</b> Assume RF written 1st half / read 2nd half ⇒ dependent instr must be ≥3 slots after producer (2 NOPs if adjacent).</p>
-<p><b>(1) with NOPs:</b> <code>add $s3,$s1,$s0; nop; nop; lw $s3,4($s3); lw $s1,0($s4); nop; or $s2,$s3,$s2; nop; nop; sw $s2,0($s3)</code> ⇒ 5 NOPs.<br><b>(2) best:</b> <code>add $s3,$s1,$s0; lw $s1,0($s4); nop; lw $s3,4($s3); nop; nop; or $s2,$s3,$s2; nop; nop; sw $s2,0($s3)</code> ⇒ still 5.</p>
-<p>add→lw→or→sw is a true RAW chain (each needs 3 slots ⇒ sw at slot ≥10 ⇒ 10 slots − 5 instrs = <b>5 NOPs minimum</b>). Only lw $s1 is independent; it can't move above add (WAR: add reads $s1). So NOPs cannot go below 5 without forwarding (with forwarding: 0 NOPs needed).</p></div>
-
 <h2>D. REFERENCE — slides + Harris/P&amp;H</h2>
 
 <div class="q"><b>R1</b> Instruction formats &amp; 5 addressing modes
@@ -634,9 +611,9 @@ CLR  = T2·(BEQ+J) + T3·(R+SW+ADDI) + T4·LW</pre>
 <p><b>Goal:</b> CPI = 1 (from single-cycle) with T<sub>c</sub> &lt; T<sub>multi</sub> (from multicycle). Split into 5 stages: <b>IF, ID, EX, MEM, WB</b> with stage registers <b>IF/ID, ID/EX, EX/MEM, MEM/WB</b> (union of regs needed by all instrs). Partitioning rules: input of a sub-function comes totally from the previous one; no other interrelations; ≈equal delays. Each stage holds one element: IM 250 | RF 150 | ALU 200 | DM 250 (| RF write) ⇒ stage = slowest = <b>250 ps</b>.<br>
 <b>Slide 13:</b> single-cycle latency 950 ps, throughput 1/950 ps = 1.05×10<sup>9</sup> instr/s. Pipelined: latency 5×250 = 1250 ps, throughput 1/250 ps = 4×10<sup>9</sup> instr/s. Latency unchanged/longer, throughput ideally ×5 (= #stages). n instrs on k stages: (k + n − 1) cycles; speedup = n·T<sub>single</sub>/((k+n−1)·T<sub>stage</sub>) → k (ideal, balanced).<br>
 <img class="fig" src="img/pctl.png"><p class="cap">Slide M2-a 33: control pipeline.</p><p><b>Control:</b> 10 lines generated in ID like single-cycle, then carried in extended stage registers (else instr i+1 overwrites instr i's controls): ID/EX holds <b>9 bits</b> (EX: RegDst, ALUOp[1:0], ALUSrc; M: Branch, MemRead, MemWrite; WB: RegWrite, MemtoReg), EX/MEM <b>5 bits</b> (M+WB), MEM/WB <b>2 bits</b> (WB). Jump used in IF/ID. Strategy-1: pass the instruction through every stage register and decode a local control in each stage. Strategy-2 (P&amp;H): decode once, pass WB/M/EX control fields. Prof: <b>RF write @posedge, stage regs write @negedge</b> (so write-then-read in same cycle).<br>
-<b>Harris pipelined T<sub>c</sub></b> (branch in ID, fwd): max{ t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>setup</sub> (F); 2(t<sub>RFread</sub>+t<sub>mux</sub>+t<sub>eq</sub>+t<sub>AND</sub>+t<sub>mux</sub>+t<sub>setup</sub>) (D); t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>mux</sub>+t<sub>ALU</sub>+t<sub>setup</sub> (E); t<sub>pcq</sub>+t<sub>memwrite</sub>+t<sub>setup</sub> (M); 2(t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>RFwrite</sub>) (W) } = 2(150+25+40+15+25+20) = <b>550 ps</b>; CPI≈1.15 → 10<sup>11</sup>×1.15×550 ps = <b>63.3 s</b>.</p>
+<b>Harris pipelined T<sub>c</sub></b> (textbook): max{ t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>setup</sub> (F); 2(t<sub>RFread</sub>+t<sub>mux</sub>+t<sub>eq</sub>+t<sub>AND</sub>+t<sub>mux</sub>+t<sub>setup</sub>) (D); t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>mux</sub>+t<sub>ALU</sub>+t<sub>setup</sub> (E); t<sub>pcq</sub>+t<sub>memwrite</sub>+t<sub>setup</sub> (M); 2(t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>RFwrite</sub>) (W) } = 2(150+25+40+15+25+20) = <b>550 ps</b>; CPI≈1.15 → 10<sup>11</sup>×1.15×550 ps = <b>63.3 s</b>.</p>
 <table><tr><th></th><th>Single</th><th>Multi</th><th>Pipeline</th></tr><tr><td>T<sub>c</sub></td><td>925</td><td>325</td><td>550 (250 ideal)</td></tr><tr><td>CPI</td><td>1</td><td>4.12</td><td>1.15 (1 ideal)</td></tr><tr><td>Time</td><td>92.5 s</td><td>133.9 s</td><td>63.3 s</td></tr><tr><td>FUs</td><td>non-shared</td><td>shared</td><td>shared by several instrs</td></tr></table>
-<p><b>Hazards:</b> structural (resource), data (RAW), control (branch). <b>Forwarding:</b> if (rsE≠0 &amp; rsE==WriteRegM &amp; RegWriteM) ForwardAE=10; else if (rsE≠0 &amp; rsE==WriteRegW &amp; RegWriteW) ForwardAE=01; else 00 (same for rtE→ForwardBE). <b>lw stall:</b> lwstall = MemtoRegE·((rsD==rtE)+(rtD==rtE)); StallF=StallD=FlushE=lwstall. <b>Branch in ID:</b> ForwardAD = (rsD≠0)(rsD==WriteRegM)RegWriteM; branchstall = BranchD·RegWriteE·(WriteRegE==rsD + WriteRegE==rtD) + BranchD·MemtoRegM·(WriteRegM==rsD + WriteRegM==rtD); FlushD = PCSrcD. Without forwarding: RAW needs 2 NOPs (write 1st half/read 2nd half); P&amp;H branch resolved in MEM → 3-cycle penalty.</p></div>
+</div>
 
 <div class="q"><b>R9</b> IPC &gt; 1: superscalar vs VLIW (slides 38–47)
 <p>CPI = cycles/instr; IPC = 1/CPI; time = #instr × (1/IPC) × T. <b>Static 2-issue (VLIW)</b>: 64-bit issue packet = ALU/branch + load/store; compiler pairs them, fills with <b>noop</b>, may remove all hazards. Adds: 32 more bits from IM, 2 more RF read ports + 1 write port, extra adder for address. <b>Dynamic (superscalar)</b>: hardware issues 2–3 instrs/cycle; in-order issue → reservation stations → out-of-order execute (FUs) → in-order commit; scoreboard, Tomasulo. Differences: general vs special instructions; dynamic vs static scheduling; HW vs compiler hazard detection; instruction format; VLIW needs recompilation for each VLIW machine.</p>
