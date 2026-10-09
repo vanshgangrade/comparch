@@ -4,7 +4,7 @@
 @page{size:A4;margin:3mm}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:#fff;color:#000}
-body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.4pt;line-height:1.06}
+body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.3pt;line-height:1.06}
 .page{width:204mm;height:290.6mm;overflow:hidden;page-break-after:always;display:flex;flex-direction:column}
 .page:last-child{page-break-after:auto}
 .cols{column-count:4;column-gap:1.4mm;column-rule:0.3pt solid #999;column-fill:auto;flex:1;min-height:0;overflow:hidden}
@@ -38,7 +38,8 @@ svg .nw{fill:#e8e8e8;stroke:#000;stroke-width:.8;stroke-dasharray:2 .8}
 #src{display:none}
 table.mt{font-size:3.7pt}
 table.mt td,table.mt th{padding:0 .15mm;text-align:center}
-img.fig{width:100%;display:block;margin:.3mm 0}
+img.fig{width:90%;display:block;margin:.3mm auto}
+p.cap{font-size:3.9pt;font-style:italic;margin:0 0 .3mm}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><marker id="a" viewBox="0 0 6 6" refX="5.5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L6,3L0,6z"/></marker></defs></svg>
 <div class="page"><div class="cols" id="c1"></div></div>
@@ -487,40 +488,18 @@ end</pre></div>
   end
 endmodule
 
-module tb;
-  reg clk = 0, rst = 1, x = 0;  wire y;
+module tb; reg clk=0, rst=1, x=0; wire y;
   even_ones dut(clk, rst, x, y);
   always #5 clk = ~clk;
-  initial begin
-    $monitor("%0t x=%b y=%b", $time, x, y);
-    #12 rst = 0;
-    x = 1; #10 x = 0; #10 x = 1; #10 x = 1;
-    #10 x = 0; #10 x = 1; #10 $finish;
-  end
+  initial begin $monitor("%0t x=%b y=%b",$time,x,y);
+    #12 rst=0; x=1; #10 x=0; #10 x=1; #10 x=1;
+    #10 x=0; #10 x=1; #10 $finish; end
 endmodule</pre></div>
 <div class="q"><b>#28</b> NOPs, forwarding speed-up, code scheduling <span class="tg">22-6</span>
 <p><b>(a)</b> No fwd: (n+0.4n)×250 = 350n ps. Fwd: (n+0.05n)×300 = 315n ps. Speed-up = 350/315 = <b>1.11</b>.<br>
 <b>(b)</b> Let x = NOP fraction without forwarding (forwarded version still 0.05n). Need (1+x)·250 &gt; 1.05·300 = 315 ⇒ 1+x &gt; 1.26 ⇒ <b>x &gt; 26%</b> NOPs. (If NOPs scale proportionally, x/8 with fwd: 250(1+x) &gt; 300(1+x/8) ⇒ x &gt; 23.5%.)<br>
 <b>(c)</b> Assume RF written 1st half / read 2nd half ⇒ dependent instr must be ≥3 slots after producer (2 NOPs if adjacent).</p>
-<table><tr><td style="width:50%"><b>(1) with NOPs</b><pre>add $s3,$s1,$s0
-nop
-nop
-lw  $s3,4($s3)
-lw  $s1,0($s4)
-nop
-or  $s2,$s3,$s2
-nop
-nop
-sw  $s2,0($s3) ;5 NOP</pre></td><td><b>(2) best schedule</b><pre>add $s3,$s1,$s0
-lw  $s1,0($s4)
-nop
-lw  $s3,4($s3)
-nop
-nop
-or  $s2,$s3,$s2
-nop
-nop
-sw  $s2,0($s3) ;5 NOP</pre></td></tr></table>
+<p><b>(1) with NOPs:</b> <code>add $s3,$s1,$s0; nop; nop; lw $s3,4($s3); lw $s1,0($s4); nop; or $s2,$s3,$s2; nop; nop; sw $s2,0($s3)</code> ⇒ 5 NOPs.<br><b>(2) best:</b> <code>add $s3,$s1,$s0; lw $s1,0($s4); nop; lw $s3,4($s3); nop; nop; or $s2,$s3,$s2; nop; nop; sw $s2,0($s3)</code> ⇒ still 5.</p>
 <p>add→lw→or→sw is a true RAW chain (each needs 3 slots ⇒ sw at slot ≥10 ⇒ 10 slots − 5 instrs = <b>5 NOPs minimum</b>). Only lw $s1 is independent; it can't move above add (WAR: add reads $s1). So NOPs cannot go below 5 without forwarding (with forwarding: 0 NOPs needed).</p></div>
 
 <h2>D. REFERENCE — slides + Harris/P&amp;H</h2>
@@ -600,24 +579,7 @@ Harris controls[8:0] = {RegWrite,RegDst,ALUSrc,Branch,MemWrite,MemtoReg,Jump,ALU
 Cycles: <b>lw 5, sw 4, R 4, addi 4, beq 3, j 3</b>. SPECINT mix 25% lw, 10% sw, 11% branch, 2% j, 52% R: CPI = .25·5+.10·4+.11·3+.02·3+.52·4 = <b>4.12</b>. Time = 10<sup>11</sup>×4.12×325 ps = <b>133.9 s</b> (slower than single-cycle! Why: sequencing overhead t<sub>pcq</sub>+t<sub>setup</sub> = 30+20 paid every step; but multicycle is less expensive). Prof CPI form: (0.11+0.02)·3 + (0.52+0.10)·4 + 0.25·5 = 4.12. <b>Homework</b>: addi, sub, lw, sw, or → 4+4+5+4+4 = 21 cycles, CPI = 21/5 = <b>4.2</b>.<br><b>Why multicycle (M1-d slides 4–14):</b> single-cycle clock = worst case (lw) for all instrs, unbalanced, redundant adders &amp; 2 memories. Putting a register in the logic: T = Max{(src-1,dstn-1),(src-2,dstn-2),…} ⇒ equal partitions halve T (f = 2/T). Multicycle = <b>resource sharing</b> (FUs, memory, interconnect) + balanced steps; simple instrs finish earlier; controller = FSM giving different signals per step; combine I/D memory, remove redundant adders, add non-architectural regs. PCWrite needed because PC must not change every cycle. <b>Problems</b> (slide 4): lw split into 5 steps but T<sub>c</sub> doesn't improve 5× (sequencing overhead per step); steps unequal; only one stage busy, others idle; 5 non-arch regs + extra muxes.</p></div>
 
 <div class="q"><b>R7</b> Multicycle FSM — prof's T-states (slide 26) = Harris S-states
-<svg viewBox="0 0 186 64"><g class="fsm">
-<ellipse class="n" cx="62" cy="7" rx="19" ry="5.5"/><text class="s" x="49" y="8.6">T0 IF/Fetch (S0)</text>
-<ellipse class="n" cx="118" cy="7" rx="19" ry="5.5"/><text class="s" x="104" y="8.6">T1 ID/Decode (S1)</text>
-<path class="w" d="M79,7 H100" marker-end="url(#a)"/><text class="s" x="83" y="4">start</text>
-<ellipse class="n" cx="22" cy="26" rx="20" ry="5.5"/><text class="s" x="7" y="27.6">T6 EXE R (S6)</text>
-<ellipse class="n" cx="72" cy="26" rx="22" ry="5.5"/><text class="s" x="54" y="27.6">T2 MemAdr/EXE (S2,S9)</text>
-<ellipse class="n" cx="126" cy="26" rx="18" ry="5.5"/><text class="s" x="113" y="27.6">T8 EXE beq (S8)</text>
-<ellipse class="n" cx="167" cy="26" rx="19" ry="5.5"/><text class="s" x="153" y="27.6">T10 EXE j (S11)</text>
-<path class="w" d="M108,11.5 L30,21" marker-end="url(#a)"/><path class="w" d="M112,12 L82,21" marker-end="url(#a)"/><path class="w" d="M120,12.5 L124,20" marker-end="url(#a)"/><path class="w" d="M130,11 L160,20.5" marker-end="url(#a)"/>
-<text class="s" x="50" y="15">R</text><text class="s" x="84" y="17">lw/sw/addi</text><text class="s" x="124" y="16">beq</text><text class="s" x="148" y="14">j</text>
-<ellipse class="n" cx="22" cy="44" rx="20" ry="5.5"/><text class="s" x="6" y="45.6">T7 ALU WB (S7)</text>
-<ellipse class="n" cx="62" cy="44" rx="19" ry="5.5"/><text class="s" x="49" y="45.6">T3 MemRd (S3)</text>
-<ellipse class="n" cx="100" cy="44" rx="19" ry="5.5"/><text class="s" x="86" y="45.6">T5 MemWr (S5)</text>
-<ellipse class="n" cx="140" cy="44" rx="20" ry="5.5"/><text class="s" x="124" y="45.6">T9 ADDI WB (S10)</text>
-<ellipse class="n" cx="62" cy="58" rx="19" ry="5.5"/><text class="s" x="49" y="59.6">T4 Mem WB (S4)</text>
-<path class="w" d="M22,31.5 V38" marker-end="url(#a)"/><path class="w" d="M66,31.5 L63,38" marker-end="url(#a)"/><path class="w" d="M80,31 L95,38.5" marker-end="url(#a)"/><path class="w" d="M88,29.5 L130,39" marker-end="url(#a)"/><path class="w" d="M62,49.5 V52" marker-end="url(#a)"/>
-<text class="s" x="57" y="36">lw</text><text class="s" x="89" y="36.5">sw</text><text class="s" x="116" y="34">addi</text>
-<text class="s" x="96" y="60">T7, T4, T5, T9, T8, T10 → back to T0</text></g></svg>
+<img class="fig" src="img/fsm.png"><p class="cap">Slide M1-d 45 / M2-a 26 — Harris names: T0=S0 Fetch, T1=S1 Decode, T2=S2 MemAdr (+S9 ADDI exec), T3=S3, T4=S4, T5=S5, T6=S6, T7=S7, T8=S8 (beq/bne), T9=S10 ADDI WB, T10=S11 J.</p>
 <p><b>Prof's controller truth (state) table = microprogram</b> (slide 49; Addr = µaddress, NA = next address, M = mode: 1 → take address from decoding table):</p>
 <table class="mt"><tr><th>Ad</th><th>St</th><th>IorD</th><th>Jmp</th><th>MW</th><th>MR</th><th>IRW</th><th>RDst</th><th>M2R</th><th>RW</th><th>SrcA</th><th>SrcB</th><th>PCW</th><th>Br</th><th>PCSrc</th><th>ALUOp</th><th>NA</th><th>M</th></tr>
 <tr><td>0</td><td>T0 Fetch</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>x</td><td>x</td><td>0</td><td>0</td><td>01</td><td>1</td><td>0</td><td>00</td><td>00</td><td>1</td><td>0</td></tr>
@@ -638,6 +600,7 @@ Cycles: <b>lw 5, sw 4, R 4, addi 4, beq 3, j 3</b>. SPECINT mix 25% lw, 10% sw, 
 
 <div class="q"><b>R7b</b> Hardwired CU (prof, counter-based; Hamacher ch5)
 <p>States are <b>common to all instrs</b> (earlier unique T0–T10): IF T0, ID T1, EXE T2, MEM/WB T3, WB(lw) T4. A <b>3-bit counter</b> (not loadable; INCR, CLR, CLK) → <b>state decoder SDCD 3:2<sup>3</sup></b> → T0…T7; opcode → <b>instruction decoder IDCD 6:2<sup>6</sup></b> → LW, SW, R(ADD), ADDI, BEQ, J. Each signal = SOP of T<sub>i</sub>·instr:</p>
+<img class="fig" src="img/hwfsm.png"><img class="fig" src="img/hwcu.png"><p class="cap">Slides M1-d 52–53 (BNE shown as EXE T3 on slide; same CLR logic).</p>
 <pre>IorD     = T3·(LW+SW)       MemRead  = T0 + T3·LW
 IRWrite  = T0               MemWrite = T3·SW
 RegDst   = T3·R             MemtoReg = T4·LW
@@ -650,23 +613,15 @@ PCWrite  = T0       Jump = T2·J   Branch = T2·BEQ
 PCSrc1   = T2·J     PCSrc0 = T2·BEQ
 INCR = T0 + T1 + T2·(R+LW+SW+ADDI) + T3·LW
 CLR  = T2·(BEQ+J) + T3·(R+SW+ADDI) + T4·LW</pre>
-<p>Counter size: 5 states (T0–T4) ⇒ <b>3 bits</b>. Slide fragments: Jump = T2·J, MemWrite = T3·SW, INCR = T0+T1+T2·LW+T3·LW+T2·SW, CLR = T4·LW+T3·SW+…</p></div>
+<p>Counter size: 5 states (T0–T4) ⇒ <b>3 bits</b>.</p></div>
 
 <div class="q"><b>R7c</b> Microprogrammed CU (prof slide 50)
 <p>Organization: <b>IR</b> (opcode) → <b>decoding table</b> (external address) → <b>MUX</b> (sel = Mode M: 1 = external/dispatch, 0 = NA) → <b>CMAR</b> (µPC) → <b>control memory</b> word = [<b>M | CF | NA</b>] → CF drives the 15 signals (17 bits). Microprogram sequencer = all units except control memory. Word width = 1 + 17 + 4 = <b>22 bits</b>, 13 words. Reduce NA bits: sequence with CMAR+1 (incrementer) and keep only a 2-bit next-type field (next / dispatch / fetch) instead of a 4-bit NA.</p>
-<pre>struct Word{ unsigned cf; int na; bool mode; };
-Word CM[13];                         // slide-49 table
-int dispatch[64];  // LW 2,SW 5,ADD 7,ADDI 9,J 11,BEQ 12
-int cmar = 0;                        // start at Fetch
-while (1) {
-  Word w = CM[cmar];
-  drive(w.cf);                       // assert controls
-  cmar = w.mode ? dispatch[(IR&amp;OPCODE)&gt;&gt;26] : w.na;
-}</pre></div>
+<img class="fig" src="img/ucu.png"><p class="cap">Slide M1-d 50. C++ µCU loop: <code>w=CM[cmar]; drive(w.cf); cmar = w.mode ? dispatch[op] : w.na;</code></p></div>
 <div class="q"><b>R8</b> Pipelined MIPS (slides 2–37)
 <p><b>Goal:</b> CPI = 1 (from single-cycle) with T<sub>c</sub> &lt; T<sub>multi</sub> (from multicycle). Split into 5 stages: <b>IF, ID, EX, MEM, WB</b> with stage registers <b>IF/ID, ID/EX, EX/MEM, MEM/WB</b> (union of regs needed by all instrs). Partitioning rules: input of a sub-function comes totally from the previous one; no other interrelations; ≈equal delays. Each stage holds one element: IM 250 | RF 150 | ALU 200 | DM 250 (| RF write) ⇒ stage = slowest = <b>250 ps</b>.<br>
 <b>Slide 13:</b> single-cycle latency 950 ps, throughput 1/950 ps = 1.05×10<sup>9</sup> instr/s. Pipelined: latency 5×250 = 1250 ps, throughput 1/250 ps = 4×10<sup>9</sup> instr/s. Latency unchanged/longer, throughput ideally ×5 (= #stages). n instrs on k stages: (k + n − 1) cycles; speedup = n·T<sub>single</sub>/((k+n−1)·T<sub>stage</sub>) → k (ideal, balanced).<br>
-<b>Control:</b> 10 lines generated in ID like single-cycle, then carried in extended stage registers (else instr i+1 overwrites instr i's controls): ID/EX holds <b>9 bits</b> (EX: RegDst, ALUOp[1:0], ALUSrc; M: Branch, MemRead, MemWrite; WB: RegWrite, MemtoReg), EX/MEM <b>5 bits</b> (M+WB), MEM/WB <b>2 bits</b> (WB). Jump used in IF/ID. Strategy-1: pass the instruction through every stage register and decode a local control in each stage. Strategy-2 (P&amp;H): decode once, pass WB/M/EX control fields. Prof: <b>RF write @posedge, stage regs write @negedge</b> (so write-then-read in same cycle).<br>
+<img class="fig" src="img/pctl.png"><p class="cap">Slide M2-a 33: control pipeline.</p><p><b>Control:</b> 10 lines generated in ID like single-cycle, then carried in extended stage registers (else instr i+1 overwrites instr i's controls): ID/EX holds <b>9 bits</b> (EX: RegDst, ALUOp[1:0], ALUSrc; M: Branch, MemRead, MemWrite; WB: RegWrite, MemtoReg), EX/MEM <b>5 bits</b> (M+WB), MEM/WB <b>2 bits</b> (WB). Jump used in IF/ID. Strategy-1: pass the instruction through every stage register and decode a local control in each stage. Strategy-2 (P&amp;H): decode once, pass WB/M/EX control fields. Prof: <b>RF write @posedge, stage regs write @negedge</b> (so write-then-read in same cycle).<br>
 <b>Harris pipelined T<sub>c</sub></b> (branch in ID, fwd): max{ t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>setup</sub> (F); 2(t<sub>RFread</sub>+t<sub>mux</sub>+t<sub>eq</sub>+t<sub>AND</sub>+t<sub>mux</sub>+t<sub>setup</sub>) (D); t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>mux</sub>+t<sub>ALU</sub>+t<sub>setup</sub> (E); t<sub>pcq</sub>+t<sub>memwrite</sub>+t<sub>setup</sub> (M); 2(t<sub>pcq</sub>+t<sub>mux</sub>+t<sub>RFwrite</sub>) (W) } = 2(150+25+40+15+25+20) = <b>550 ps</b>; CPI≈1.15 → 10<sup>11</sup>×1.15×550 ps = <b>63.3 s</b>.</p>
 <table><tr><th></th><th>Single</th><th>Multi</th><th>Pipeline</th></tr><tr><td>T<sub>c</sub></td><td>925</td><td>325</td><td>550 (250 ideal)</td></tr><tr><td>CPI</td><td>1</td><td>4.12</td><td>1.15 (1 ideal)</td></tr><tr><td>Time</td><td>92.5 s</td><td>133.9 s</td><td>63.3 s</td></tr><tr><td>FUs</td><td>non-shared</td><td>shared</td><td>shared by several instrs</td></tr></table>
 <p><b>Hazards:</b> structural (resource), data (RAW), control (branch). <b>Forwarding:</b> if (rsE≠0 &amp; rsE==WriteRegM &amp; RegWriteM) ForwardAE=10; else if (rsE≠0 &amp; rsE==WriteRegW &amp; RegWriteW) ForwardAE=01; else 00 (same for rtE→ForwardBE). <b>lw stall:</b> lwstall = MemtoRegE·((rsD==rtE)+(rtD==rtE)); StallF=StallD=FlushE=lwstall. <b>Branch in ID:</b> ForwardAD = (rsD≠0)(rsD==WriteRegM)RegWriteM; branchstall = BranchD·RegWriteE·(WriteRegE==rsD + WriteRegE==rtD) + BranchD·MemtoRegM·(WriteRegM==rsD + WriteRegM==rtD); FlushD = PCSrcD. Without forwarding: RAW needs 2 NOPs (write 1st half/read 2nd half); P&amp;H branch resolved in MEM → 3-cycle penalty.</p></div>
