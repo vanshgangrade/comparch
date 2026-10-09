@@ -4,7 +4,7 @@
 @page{size:A4;margin:3mm}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:#fff;color:#000}
-body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.6pt;line-height:1.1}
+body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.4pt;line-height:1.06}
 .page{width:204mm;height:290.6mm;overflow:hidden;page-break-after:always;display:flex;flex-direction:column}
 .page:last-child{page-break-after:auto}
 .cols{column-count:4;column-gap:1.4mm;column-rule:0.3pt solid #999;column-fill:auto;flex:1;min-height:0;overflow:hidden}
@@ -15,16 +15,16 @@ body{font-family:Carlito,"Liberation Sans",sans-serif;font-size:4.6pt;line-heigh
 figcaption{font-size:4.1pt;line-height:1.05}
 h1{font-size:6pt;margin:0 0 .3mm;text-align:center}
 h2{font-size:5.2pt;margin:.5mm 0 .3mm;background:#000;color:#fff;padding:0 .8mm;break-after:avoid}
-.q{margin:0 0 .6mm;padding-top:.3mm;border-top:.3pt solid #000}
+.q{margin:0 0 .4mm;padding-top:.2mm;border-top:.3pt solid #000}
 .q>b:first-child{background:#ddd;padding:0 .4mm}
 .tg{font-style:italic;color:#333;font-size:4.2pt}
 p{margin:.15mm 0}
 ul,ol{margin:.1mm 0 .1mm 2.3mm;padding:0}
 li{margin:0}
-table{border-collapse:collapse;width:100%;margin:.25mm 0;font-size:4.25pt;line-height:1.05}
+table{border-collapse:collapse;width:100%;margin:.25mm 0;font-size:4.1pt;line-height:1.05}
 td,th{border:.3pt solid #555;padding:0 .35mm;vertical-align:top;overflow-wrap:anywhere}
 th{background:#e4e4e4}
-pre,code{font-family:"Liberation Mono","DejaVu Sans Mono",monospace;font-size:3.95pt}
+pre,code{font-family:"Liberation Mono","DejaVu Sans Mono",monospace;font-size:3.8pt}
 pre{margin:.2mm 0;white-space:pre-wrap;line-height:1.06;background:#f3f3f3;padding:.3mm .5mm}
 svg{display:block;width:100%;height:auto;margin:.3mm 0;break-inside:avoid}
 svg text{font-family:Carlito,sans-serif;font-size:5.6px}
@@ -415,7 +415,7 @@ end</pre></div>
 <tr><td>S7</td><td>T←T+d (=Y<sub>i</sub>)</td><td>KSel=10, TSel=1, LdT</td><td>S8</td></tr>
 <tr><td>S8</td><td>M[PY]←T, PY←PY+2, i←i+1</td><td>AdrSel=1, MemWr, IncY, IncI</td><td>S1</td></tr>
 <tr><td>S9</td><td>Done</td><td>Stop=1</td><td>S9</td></tr></table>
-<p>State reg 4 bits (10 states); total = 1 + 10×8 + 1 = 82 cycles. <b>Clock period (25-2c):</b> longest reg→reg path: T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>mux</sub>+t<sub>MUL</sub>, t<sub>mux</sub>+t<sub>ADD</sub>, t<sub>mux</sub>+t<sub>mem</sub>) + t<sub>mux</sub> + t<sub>setup</sub> (+t<sub>ctrl</sub> if select lines settle after data). MUL dominates: <b>T<sub>c</sub> = t<sub>clk-q</sub>+t<sub>mux</sub>+t<sub>MUL</sub>+t<sub>mux</sub>+t<sub>setup</sub></b>; e.g. 30+25+400+25+20 = 500 ps (assumed t<sub>MUL</sub>=400). Memory path 30+25+250+20 = 325 ps.</p></div>
+<p>(Prof's MinMax style, R12: replace i/==10 by a <b>Limit</b> register loaded with 10 via mux, −1 adder, <b>stop</b> when 0; PC+2 adder for 16-bit words.) State reg 4 bits (10 states); total = 1 + 10×8 + 1 = 82 cycles. <b>Clock period (25-2c):</b> longest reg→reg path: T<sub>c</sub> = t<sub>clk-q</sub> + max(t<sub>mux</sub>+t<sub>MUL</sub>, t<sub>mux</sub>+t<sub>ADD</sub>, t<sub>mux</sub>+t<sub>mem</sub>) + t<sub>mux</sub> + t<sub>setup</sub> (+t<sub>ctrl</sub> if select lines settle after data). MUL dominates: <b>T<sub>c</sub> = t<sub>clk-q</sub>+t<sub>mux</sub>+t<sub>MUL</sub>+t<sub>mux</sub>+t<sub>setup</sub></b>; e.g. 30+25+400+25+20 = 500 ps (assumed t<sub>MUL</sub>=400). Memory path 30+25+250+20 = 325 ps.</p></div>
 
 <div class="q"><b>#37</b> GCD in C, single-cycle datapath + controller, clock <span class="tg">24-2</span>
 <pre>int GCD(int a, int b){
@@ -550,6 +550,7 @@ sw  $s2,0($s3) ;5 NOP</pre></td></tr></table>
 <tr><td>addi / slti</td><td>001000 (08) / 001010</td><td>—</td><td>rt=rs+SignExt(imm)</td></tr>
 <tr><td>andi / ori / lui</td><td>001100 / 001101 / 001111</td><td>—</td><td>ZeroExt imm; lui rt=imm&lt;&lt;16</td></tr>
 <tr><td>j / jal</td><td>000010 / 000011</td><td>—</td><td>PC=JTA; jal: $ra=PC+4</td></tr></table>
+<p><b>Opcode warning:</b> prof's slides (M1-a 39, M1-a 66) &amp; 2024 paper table use <b>LW = 100010, SW = 100011</b>; real MIPS &amp; 2023 paper use LW 100011, SW 101011 — use whatever table the question gives. Shifts (M1-a 82–84): sll $t0,$s1,4 = 0x00114100; srl $s2,$s1,4 = 0x00119102; sra $s3,$s1,4 = 0x00119903 (rs=0, rt=src, shamt); sllv/srlv/srav (funct 4/6/7) use rs as amount: sllv $s3,$s1,$s2 = 0x02519804. $s1=0xF30002A8 → sll 4: 0x30002A80, srl 4: 0x0F30002A, sra 4: 0xFF30002A. Loads/stores: lb rt,imm(rs): RF[rt]=SExt(M[RF[rs]+SExt(imm)](7:0)); lbu zero-ext; lh/lhu 15:0; sb M[..](7:0)=RF[rt](7:0); sh 15:0.</p>
 <p><b>Regs:</b> $0 zero | $1 $at | $2–3 $v0–1 | $4–7 $a0–3 | $8–15 $t0–7 | $16–23 $s0–7 | $24–25 $t8–9 | $26–27 $k0–1 | $28 $gp | $29 $sp | $30 $fp | $31 $ra.</p></div>
 
 <div class="q"><b>R3</b> Main decoder truth table (single-cycle; prof slide 25)
@@ -561,10 +562,7 @@ sw  $s2,0($s3) ;5 NOP</pre></td></tr></table>
 <tr><td>beq</td><td>000100</td><td>0</td><td>x</td><td>0</td><td>0</td><td>1</td><td>01</td><td>0</td><td>0</td><td>x</td></tr>
 <tr><td>j</td><td>000010</td><td>1</td><td>x</td><td>0</td><td>x</td><td>x</td><td>xx</td><td>0</td><td>0</td><td>x</td></tr></table>
 <p>(RDst=RegDst, RWr=RegWrite, ASrc=ALUSrc, Br=Branch, MRd/MWr=MemRead/Write, M2R=MemtoReg.) RegDst 0=rt,1=rd; ALUSrc 0=RD2,1=SignImm; MemtoReg 0=ALUResult,1=ReadData; PCSrc = Branch·Zero (bne: Branch·¬Zero); Jump selects JTA. (Pipelined table slide 29 shows sw MemRead=1 — use 0.)<br>
-<b>Harris Verilog</b> (controls[8:0]):</p><pre>assign {RegWrite,RegDst,ALUSrc,Branch,MemWrite,
-        MemtoReg,Jump,ALUOp} = controls;
-// R 110000010  lw 101001000  sw 001010000
-// beq 000100001 addi 101000000 j 000000100</pre></div>
+Harris controls[8:0] = {RegWrite,RegDst,ALUSrc,Branch,MemWrite,MemtoReg,Jump,ALUOp}: R 110000010, lw 101001000, sw 001010000, beq 000100001, addi 101000000, j 000000100.</p></div>
 
 <div class="q"><b>R4</b> ALU decoder &amp; ALU control lines / functions
 <table><tr><th>ALUOp</th><th>funct</th><th>ALUCtrl 4b (prof/P&amp;H)</th><th>3b (Harris)</th><th>action</th></tr>
@@ -586,7 +584,15 @@ sw  $s2,0($s3) ;5 NOP</pre></td></tr></table>
 <tr><td>addi</td><td>t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>RFread</sub>+t<sub>ALU</sub>+t<sub>mux</sub>+t<sub>RFsetup</sub></td><td>675</td></tr>
 <tr><td>beq</td><td>t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>RFread</sub>+t<sub>mux</sub>+t<sub>ALU</sub>+t<sub>AND</sub>+t<sub>mux</sub>(PCSrc)+t<sub>mux</sub>(Jump)+t<sub>setup</sub></td><td>≈725+t<sub>AND</sub></td></tr>
 <tr><td>j</td><td>t<sub>pcq</sub>+t<sub>mem</sub>+t<sub>mux</sub>+t<sub>setup</sub> = 30+250+25+20</td><td>325</td></tr></table>
-<p><b>T<sub>c</sub> = slowest = lw = 925 ps</b> (slide/P&amp;H version: 950 ps). Exec time (100×10<sup>9</sup> instrs) = #instr × CPI × T<sub>c</sub> = 10<sup>11</sup>×1×925 ps = <b>92.5 s</b>. Single-cycle needs separate IM/DM and 3 adders (PC+4, branch, ALU) — no FU reused in a cycle (non-shared FUs).</p></div>
+<p>Prof (M1-a 75): <b>T<sub>c</sub> = t<sub>pcq_PC</sub> + 2t<sub>mem</sub> + t<sub>RFread</sub> + t<sub>ALU</sub> + t<sub>mux</sub> + t<sub>RFsetup</sub></b> = 30+2(250)+150+200+25+20 = <b>925 ps</b>. Single-cycle: IM, RF, DM read combinationally; all writes on rising clock edge; whole instr in one cycle; simple CU (no next state).</p>
+<table><tr><th>Instr</th><th>PC</th><th>IMM</th><th>ADD_PC</th><th>RF</th><th>EXTN</th><th>ALU</th><th>&lt;&lt;2</th><th>ADD_B</th><th>DMM</th><th>RFwr</th><th>Total</th></tr>
+<tr><td>ADD</td><td>√</td><td>√</td><td>√</td><td>√</td><td>×</td><td>√</td><td>×</td><td>×</td><td>×</td><td>√</td><td>6</td></tr>
+<tr><td>BNE</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>×</td><td>×</td><td>8</td></tr>
+<tr><td>J</td><td>√</td><td>√</td><td>√</td><td>×</td><td>×</td><td>×</td><td>×</td><td>×</td><td>×</td><td>×</td><td>3</td></tr>
+<tr><td>SW</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>×</td><td>×</td><td>√</td><td>×</td><td>7</td></tr>
+<tr><td>LW</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>×</td><td>×</td><td>√</td><td>√</td><td>8</td></tr>
+<tr><td>ADDI</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>√</td><td>×</td><td>×</td><td>×</td><td>√</td><td>7</td></tr></table>
+<p>(Resource usage, M1-a 68: LW uses the most resources in series ⇒ decides when PC can be updated.) <b>T<sub>c</sub> = slowest = lw = 925 ps</b> (P&amp;H pipeline-slide version: 950 ps). Exec time (100×10<sup>9</sup> instrs) = #instr × CPI × T<sub>c</sub> = 10<sup>11</sup>×1×925 ps = <b>92.5 s</b>. Single-cycle needs separate IM/DM and 3 adders (PC+4, branch, ALU) — no FU reused in a cycle (non-shared FUs).</p></div>
 
 <div class="q"><b>R6</b> Multicycle: Tc, CPI, non-architectural state
 <p><b>Architectural state</b> (visible to programmer): PC, 32-reg RF, memory. <b>Non-architectural</b> (added in multicycle, 5 regs): <b>IR</b> (IRWrite), <b>MDR/Data</b>, <b>A</b>, <b>B</b>, <b>ALUOut</b> + extra muxes: IorD (shared I/D memory), ALUSrcA (PC/A), ALUSrcB 4:1 (B, 4, SignImm, SignImm&lt;&lt;2), PCSrc 3:1 (ALUResult, ALUOut, JTA). One memory, one ALU (no extra adders) — shared FUs.<br>
@@ -690,23 +696,17 @@ while (1) {
 <p>µinstruction = control field + condition-select + next-address. <b>Horizontal</b>: 1 bit per control line (wide, parallel, fast, no decode). <b>Vertical</b>: encoded fields (narrow, needs decoders, slower). Next µaddress: µPC+1, dispatch ROM (opcode), branch on condition, or 0 (fetch).</p></div>
 
 <div class="q"><b>R11</b> Timing formulas
-<p>Setup: <b>T<sub>c</sub> ≥ t<sub>pcq</sub> + t<sub>pd</sub> + t<sub>setup</sub> (+t<sub>skew</sub>)</b>; Hold: <b>t<sub>ccq</sub> + t<sub>cd</sub> ≥ t<sub>hold</sub> (+t<sub>skew</sub>)</b>. t<sub>pd</sub> = max (propagation) delay, t<sub>cd</sub> = min (contamination). f<sub>max</sub> = 1/T<sub>c</sub>. Sequencing overhead = t<sub>pcq</sub>+t<sub>setup</sub>. CPU time = #instr × CPI × T<sub>c</sub>; IPC = 1/CPI; MIPS = f/(CPI·10<sup>6</sup>); speedup = T<sub>old</sub>/T<sub>new</sub>; CPI<sub>avg</sub> = Σ f<sub>i</sub>·CPI<sub>i</sub>. Dynamic discipline: inputs stable in aperture [t<sub>setup</sub> before, t<sub>hold</sub> after] edge.</p></div>
+<p><b>Prof (M1-a 31–32):</b> Di (source F/F) → logic (T<sub>L</sub>) → Do (sink). Data launched at one edge must be captured at the <b>next</b> active edge. Setup: T − t<sub>su_Do</sub> &gt; t<sub>cq_Di</sub> + T<sub>L</sub> ⇒ <b>T &gt; t<sub>cq_Di</sub> + T<sub>L</sub> + t<sub>su_Do</sub></b> (1) (slow path). Hold (avoid race): <b>t<sub>cq_Di</sub> + T<sub>L</sub> &gt; t<sub>h_Do</sub></b> (2) (fast path); if violated, data meant for the next edge is captured at the same edge. Check all F/F (register) pairs; clock period = max T<sub>i</sub>. Setup/hold values come from the cell library. Setup: <b>T<sub>c</sub> ≥ t<sub>pcq</sub> + t<sub>pd</sub> + t<sub>setup</sub> (+t<sub>skew</sub>)</b>; Hold: <b>t<sub>ccq</sub> + t<sub>cd</sub> ≥ t<sub>hold</sub> (+t<sub>skew</sub>)</b>. t<sub>pd</sub> = max (propagation) delay, t<sub>cd</sub> = min (contamination). f<sub>max</sub> = 1/T<sub>c</sub>. Sequencing overhead = t<sub>pcq</sub>+t<sub>setup</sub>. CPU time = #instr × CPI × T<sub>c</sub>; IPC = 1/CPI; MIPS = f/(CPI·10<sup>6</sup>); speedup = T<sub>old</sub>/T<sub>new</sub>; CPI<sub>avg</sub> = Σ f<sub>i</sub>·CPI<sub>i</sub>. Dynamic discipline: inputs stable in aperture [t<sub>setup</sub> before, t<sub>hold</sub> after] edge.</p></div>
 
-<div class="q"><b>R12</b> MinMax single-purpose processor (generic — prof's slides not provided)
-<p>Find MIN and MAX of N numbers in memory. Datapath: regs X, MIN, MAX, i (addr/counter); comparators <b>lt</b>=(X&lt;MIN), <b>gt</b>=(X&gt;MAX), <b>done</b>=(i==N); incrementer i+1; muxes to init MIN/MAX. Controls: ldX, ldMin, ldMax, selInit, clrI, incI.</p>
-<svg viewBox="0 0 186 34"><rect class="n" x="2" y="2" width="26" height="12"/><text class="s" x="4" y="9.5">Mem[i]</text><path class="w" d="M28,8 H37" marker-end="url(#a)"/><rect class="n" x="38" y="3" width="14" height="10"/><text class="s" x="43" y="10">X</text>
-<path class="w" d="M52,8 H62 V4 H69 M62,8 V24 H69"/><path class="n" d="M70,1 L76,3 L76,9 L70,11Z"/><path class="n" d="M70,21 L76,23 L76,29 L70,31Z"/><text class="s" x="64" y="18">init mux</text>
-<rect class="n" x="82" y="1" width="16" height="10"/><text class="s" x="84" y="8">MIN</text><rect class="n" x="82" y="21" width="16" height="10"/><text class="s" x="84" y="28">MAX</text>
-<path class="w" d="M76,6 H81" marker-end="url(#a)"/><path class="w" d="M76,26 H81" marker-end="url(#a)"/>
-<rect class="n" x="110" y="1" width="24" height="10"/><text class="s" x="112" y="8">X&lt;MIN?</text><rect class="n" x="110" y="21" width="24" height="10"/><text class="s" x="112" y="28">X&gt;MAX?</text>
-<path class="w" d="M98,6 H109 M98,26 H109"/><path class="w" d="M134,6 H143" marker-end="url(#a)"/><path class="w" d="M134,26 H143" marker-end="url(#a)"/><text class="s" x="144" y="7.5">lt→ldMin</text><text class="s" x="144" y="27.5">gt→ldMax</text>
-<rect class="n" x="2" y="19" width="16" height="8"/><text class="s" x="8" y="25">i</text><text class="s" x="2" y="33">i → addr, i+1, i==N (done)</text></svg>
-<table><tr><th>State</th><th>Action</th><th>Next</th></tr>
-<tr><td>S0</td><td>i←0; X←M[0]; MIN←X, MAX←X (selInit)</td><td>S1</td></tr>
-<tr><td>S1</td><td>i←i+1; if done → S3; X←M[i]</td><td>S2</td></tr>
-<tr><td>S2</td><td>if lt: MIN←X; if gt: MAX←X</td><td>S1</td></tr>
-<tr><td>S3</td><td>Done, output MIN, MAX</td><td>S3</td></tr></table>
-<p>Pipelined MinMax: stage 1 load X[i] | stage 2 compare | stage 3 update MIN/MAX, one element per cycle. T<sub>c</sub> = t<sub>clk-q</sub> + t<sub>mux</sub> + t<sub>cmp</sub> + t<sub>ctrl</sub> + t<sub>setup</sub>.</p></div>
+<div class="q"><b>R12</b> MinMax processor (prof, M1-a slides 26–34) — single-purpose
+<p><b>Algorithm:</b> Min = ∞, Max = −∞; scan i-th no.: if Max &lt; A[i] then Max = A[i]; if Min &gt; A[i] then Min = A[i]; until i reaches n. (e.g. {1,2,−8,0,23,11,−10} → Min −10, Max 23.) Max n-bit signed value 2<sup>n−1</sup>−1 (sign 0), min −2<sup>n−1</sup> (sign 1).</p>
+<img class="fig" src="img/minmax.png">
+<p><b>Datapath:</b> PC (16-bit data ⇒ PC+2 adder; nextpc mux: loadPC=1 → 0), memory M → MemOut; <b>Limit</b> counter (mux loadLimit=1 → 10, else limit−1 via −1 adder; <b>stop</b> when 0); <b>Min Reg</b> (mux load min=1 → 16'hFFFF/largest, else MemOut through tri-state enabled by min_lesser_than) + comparator (min_lesser_than); <b>Max Reg</b> (mux loadMax=1 → −1/smallest, else MemOut via tri-state enabled by max_greater_than) + comparator (max_greater_than). <b>Controller</b> out: loadPC, PC update, mem Write, Limit update, load limit, load min, Min update, load max, Max update; in: Stop, min_lesser_than, max_greater_than.</p>
+<table><tr><th>State</th><th>Signals</th><th>Next</th></tr>
+<tr><td>S0 Init</td><td>loadPC, loadLimit, loadmin, loadMax = 1; PC/Limit/Min/Max update = 1 (PC←0, Limit←10, Min←MAX, Max←MIN)</td><td>S1</td></tr>
+<tr><td>S1 Scan</td><td>load* = 0; PC update (PC←PC+2), Limit update (Limit←Limit−1); Min update = min_lesser_than; Max update = max_greater_than</td><td>stop ? S2 : S1</td></tr>
+<tr><td>S2 Done</td><td>Stop: output Min Reg, Max Reg</td><td>S2</td></tr></table>
+<p><b>Clock period (slide 33):</b> time for every reg→reg path, take the max: PC→MaxReg = t<sub>cq</sub>+t<sub>mem</sub>+t<sub>cmp</sub>+t<sub>tri</sub>+t<sub>mux</sub>+t<sub>setup</sub>; PC→MinReg (same); PC→PC = t<sub>cq</sub>+t<sub>add</sub>+t<sub>mux</sub>+t<sub>setup</sub>; Limit→Limit = t<sub>cq</sub>+t<sub>add</sub>+t<sub>mux</sub>+t<sub>setup</sub> (+ controller path) ⇒ <b>T = max</b> (memory path). Performance = time from giving inputs to getting output = clock period × cycles (n+1). It runs only this algorithm (dedicated); a general-purpose processor needs fetch-and-execute. Pipelined MinMax (homework): fetch A[i] | compare | update.</p></div>
 
 <div class="q"><b>R13</b> Prof's C++ fetch-and-execute — single-cycle (M1-d slide 2; offsets sign-extended)
 <pre>#define OPCODE 0xFC000000  // 0b111111 then 26 zeros
@@ -802,32 +802,64 @@ while(1){
    {PC[31:28],Instr[25:0],2'b00},PCSrc,PCNext);
  assign Op=Instr[31:26]; assign Funct=Instr[5:0];
 endmodule
-// controller: PCEn = PCWrite | (Branch &amp; Zero);
-module flopenr #(parameter W=8)(input clk,reset,en,
-  input [W-1:0] d, output reg [W-1:0] q);
- always @(posedge clk, posedge reset)
-  if (reset) q &lt;= 0; else if (en) q &lt;= d;
-endmodule   // flopr = same without en
-module regfile(input clk, we3, input [4:0] ra1,
-  ra2, wa3, input [31:0] wd3, output [31:0] rd1,rd2);
- reg [31:0] rf[31:0];
- always @(posedge clk) if (we3) rf[wa3] &lt;= wd3;
- assign rd1 = (ra1!=0) ? rf[ra1] : 0;
- assign rd2 = (ra2!=0) ? rf[ra2] : 0;
-endmodule</pre></div>
+// controller: PCEn = PCWrite | (Branch &amp; Zero)
+// flopenr: always @(posedge clk, posedge reset)
+//   if(reset) q&lt;=0; else if(en) q&lt;=d;  (flopr: no en)
+// regfile: write @posedge if we3; rd = (ra!=0)?rf[ra]:0
+</pre></div>
+
+<div class="q"><b>R16</b> Intro deck (M1-a) essentials
+<p><b>Computable</b> = an algorithm exists (is n prime?); uncomputable/unknown: is a number random? P=?NP. <b>Halting problem</b>: assume A(P,D) decides if P halts on D; build B(X): loop forever if A(X,X)="Halt" else halt; B(B) contradicts ⇒ A doesn't exist (self-referential). <b>General-purpose</b> = programmable (Turing model) via the <b>fetch-and-execute</b> algorithm: stored program, generalized datapath &amp; FU (von Neumann): fetch instr from memory → decode (opcode) → execute → PC+4. <b>Special-purpose</b> (MinMax) runs one algorithm, no opcode.<br>
+<b>Half adder:</b> S = A⊕B, Cout = AB. <b>Full adder:</b> S = A⊕B⊕Cin, Cout = AB + ACin + BCin; ripple-carry adder chains n FAs.</p>
+<table><tr><th>High-level construct</th><th>Digital construct</th><th>Type</th></tr>
+<tr><td>Scalar/variable</td><td>register or wire</td><td>sequential if reg</td></tr>
+<tr><td>Array</td><td>memory (write: decoder, read: mux)</td><td>sequential</td></tr>
+<tr><td>Operators + − * /</td><td>functional unit</td><td>combinational</td></tr>
+<tr><td>if-else / switch / loop</td><td>control unit</td><td>comb./sequential</td></tr>
+<tr><td>if(sel) a=10; else a=5;</td><td>multiplexer</td><td>comb.</td></tr>
+<tr><td>if(sel) a=10; else b=5;</td><td>decoder (enables)</td><td>comb.</td></tr>
+<tr><td>for(i=10;i&gt;0;i--)</td><td>counter (load max, decrement, zero → stop); nested loops: 2 counters, stop = AND of zeros</td><td>sequential</td></tr>
+<tr><td>a&lt;b, a==b</td><td>n-bit comparator (A&gt;B, A=B, A&lt;B)</td><td>comb.</td></tr></table>
+<pre>module d_latch(input d, en, rstn, output reg q);
+ always @(en or rstn or d)
+  if (!rstn) q &lt;= 0; else if (en) q &lt;= d;
+endmodule
+module dff(input clk, d, output reg q);
+ always @(posedge clk) q &lt;= d;
+endmodule</pre>
+<p><b>Abstraction layers:</b> Problem → Algorithm → Program/Language → Runtime (OS, VM) → <b>ISA</b> → <b>Microarchitecture</b> → <b>Logic</b> (CS F342 focus) → Devices → Electrons. ISA = the computer as seen by the compiler (MIPS, RISC-V, 8085, x86, x64). MIPS = Microprocessor without Interlocked Pipelined Stages. Architecture = computational structure w.r.t. user: minimal resources, scalable. Two ideas: all computers compute the same things given time &amp; memory; problems must be transformed from human language to voltages. Moore's law: transistors per chip double every ~2 years (cores after ~2005). Computation history: manual → mechanical → electro-mechanical → electrical (vacuum tubes → transistors). FPGA = CLBs of 4-input LUTs. Homework: bubble-sort SPP; GP processor with ADD, SUB, LW, SW, BNE, 32 regs, R0 = 0.</p></div>
 
 </div>
 <script>
 window.addEventListener('load',function(){
  var src=document.getElementById('src'), c1=document.getElementById('c1'), c2=document.getElementById('c2');
+ function over(){ return c1.scrollWidth>c1.clientWidth+1; }
  var kids=Array.prototype.slice.call(src.children), t=c1;
  kids.forEach(function(k){
-  t.appendChild(k);
-  if(t===c1 && c1.scrollWidth>c1.clientWidth+1){
-   var last=k.previousElementSibling; t=c2;
-   if(last && last.tagName==='H2') c2.appendChild(last);
-   c2.appendChild(k);
+  if(t===c2){ c2.appendChild(k); return; }
+  c1.appendChild(k);
+  if(!over()) return;
+  c1.removeChild(k); t=c2;
+  if(k.className==='q'){            // split block across pages
+   var part=k.cloneNode(false); c1.appendChild(part);
+   while(k.firstChild){
+    var n=k.firstChild; part.appendChild(n);
+    if(over()){
+     k.insertBefore(n,k.firstChild);
+     if(n.tagName==='PRE'){        // split code block by lines
+      var lines=n.textContent.split('\n'), p1=n.cloneNode(false); part.appendChild(p1); var m=0;
+      while(m<lines.length){ p1.textContent=lines.slice(0,m+1).join('\n'); if(over()) break; m++; }
+      if(m>3){ p1.textContent=lines.slice(0,m).join('\n'); n.textContent='// ...continued\n'+lines.slice(m).join('\n'); }
+      else part.removeChild(p1);
+     }
+     break; }
+   }
+   if(!part.firstElementChild || part.textContent.trim().length<40){ while(part.lastChild) k.insertBefore(part.lastChild,k.firstChild); c1.removeChild(part); }
+   else k.style.borderTop='none';
+  } else {
+   var last=c1.lastElementChild; if(last && last.tagName==='H2') c2.appendChild(last);
   }
+  c2.appendChild(k);
  });
  document.body.setAttribute('data-c2over', c2.scrollWidth>c2.clientWidth+1 ? '1':'0');
 });
